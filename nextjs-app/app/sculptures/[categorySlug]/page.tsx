@@ -12,7 +12,9 @@ const query = groq`
     title,
     description,
     top,
-    left
+    left,
+    width,
+    height
   }
 `;// or correct path
 
@@ -37,6 +39,8 @@ export default async function CategoryPage({ params }: { params: { categorySlug:
               description={sculpture.description}
               top={sculpture.top}
               left={sculpture.left}
+              width={sculpture.width}
+              height={sculpture.height}
             />
           ))}
         </div>

@@ -8,10 +8,11 @@ type Props = {
   id: string;
   top?: number;
   left?: number;
+  width?: number;
+  height?: number;
 };
 
-
-export default function SculptureCard({ title, description, id, top, left }: Props) {
+export default function SculptureCard({ title, description, id, top, left, width, height }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const offset = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
@@ -20,36 +21,47 @@ export default function SculptureCard({ title, description, id, top, left }: Pro
     if (!el) return;
 
     let isDragging = false;
+    let isResizing = false;
 
-    const onMouseDown = (e: MouseEvent) => {
-      isDragging = true;
-      el.style.position = 'absolute';
-      el.style.zIndex = '999';
-      el.style.pointerEvents = 'none'; // prevent nested clicks
+    const handleMouseDown = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).classList.contains('resize-handle')) {
+        isResizing = true;
+      } else {
+        isDragging = true;
+        const rect = el.getBoundingClientRect();
+        offset.current = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        };
+        e.preventDefault();
+      }
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!el) return;
+
+      if (isDragging) {
+        el.style.left = `${e.clientX - offset.current.x}px`;
+        el.style.top = `${e.clientY - offset.current.y}px`;
+      }
+
+      if (isResizing) {
+        const rect = el.getBoundingClientRect();
+        el.style.width = `${e.clientX - rect.left}px`;
+        el.style.height = `${e.clientY - rect.top}px`;
+      }
+    };
+
+    const handleMouseUp = async () => {
+      if (!el) return;
 
       const rect = el.getBoundingClientRect();
-      offset.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
 
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-    };
-
-    const onMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-
-      el.style.left = `${e.clientX - offset.current.x}px`;
-      el.style.top = `${e.clientY - offset.current.y}px`;
-    };
-
-    const onMouseUp = async () => {
-      if (!isDragging) return;
       isDragging = false;
-      el.style.pointerEvents = 'auto';
-
-      const rect = el.getBoundingClientRect();
+      isResizing = false;
 
       try {
         const res = await fetch('/api/updateSculptureDimensions', {
@@ -66,19 +78,19 @@ export default function SculptureCard({ title, description, id, top, left }: Pro
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
-        console.log(`✅ Saved new position for "${title}"`);
+        console.log(`✅ Updated position & size for "${title}"`);
       } catch (err: any) {
-        console.error('❌ Failed to save position:', err.message);
+        console.error('❌ Failed to update:', err.message);
       }
 
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
     };
 
-    el.addEventListener('mousedown', onMouseDown);
+    el.addEventListener('mousedown', handleMouseDown);
 
     return () => {
-      el.removeEventListener('mousedown', onMouseDown);
+      el.removeEventListener('mousedown', handleMouseDown);
     };
   }, [id, title]);
 
@@ -90,11 +102,20 @@ export default function SculptureCard({ title, description, id, top, left }: Pro
       style={{
         top: top ?? 0,
         left: left ?? 0,
+        width: width ?? 200,
+        height: height ?? 'auto',
         position: 'absolute',
+        zIndex: 999,
       }}
     >
       <h2 className="text-lg font-semibold">{title}</h2>
       {description && <p className="text-sm text-gray-600">{description}</p>}
+
+      {/* Resize handle */}
+      <div
+        className="resize-handle absolute bottom-1 right-1 w-4 h-4 bg-gray-400 cursor-se-resize"
+        style={{ zIndex: 10 }}
+      />
     </div>
   );
 }
