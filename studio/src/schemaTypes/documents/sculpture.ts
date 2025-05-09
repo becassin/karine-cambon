@@ -38,6 +38,26 @@ export const sculpture = defineType({
       to: [{ type: 'category' }]
     }),
     defineField({
+      name: 'top',
+      title: 'Top',
+      type: 'number'
+    }),
+    defineField({
+      name: 'left',
+      title: 'Left',
+      type: 'number'
+    }),
+    defineField({
+      name: 'width',
+      title: 'Width',
+      type: 'number'
+    }),
+    defineField({
+      name: 'height',
+      title: 'Height',
+      type: 'number'
+    }),
+    defineField({
       name: 'content',
       title: 'Content',
       type: 'blockContent',

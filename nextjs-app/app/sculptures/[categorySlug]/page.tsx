@@ -1,11 +1,6 @@
 import { sanity } from '@/lib/sanity';
 import { groq } from 'next-sanity';
-
-type Sculpture = {
-  _id: string;
-  title: string;
-  description?: string;
-};
+import SculptureCard from '@/app/components/SculptureCard';
 
 const query = groq`
   *[
@@ -17,16 +12,10 @@ const query = groq`
     title,
     description
   }
-`;
+`;// or correct path
 
-export default async function CategoryPage({
-  params,
-}: {
-  params: { categorySlug: string };
-}) {
-  const sculptures: Sculpture[] = await sanity.fetch(query, {
-    slug: params.categorySlug,
-  });
+export default async function CategoryPage({ params }: { params: { categorySlug: string } }) {
+  const sculptures = await sanity.fetch(query, { slug: params.categorySlug });
 
   return (
     <div className="p-6">
@@ -35,18 +24,18 @@ export default async function CategoryPage({
       </h1>
 
       {sculptures.length === 0 ? (
-        <p>No sculptures found for this category.</p>
+        <p>No sculptures found.</p>
       ) : (
-        <ul className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2">
           {sculptures.map((sculpture) => (
-            <li key={sculpture._id} className="border p-4 rounded">
-              <h2 className="text-lg font-semibold">{sculpture.title}</h2>
-              {sculpture.description && (
-                <p className="text-sm text-gray-600">{sculpture.description}</p>
-              )}
-            </li>
+            <SculptureCard
+              key={sculpture._id}
+              id={sculpture._id}
+              title={sculpture.title}
+              description={sculpture.description}
+            />
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
