@@ -12,56 +12,110 @@ type Props = {
   height?: number;
 };
 
-export default function SculptureCard({ title, description, id, top, left, width, height }: Props) {
+// Clamp helper to restrict values
+function clamp(val: number, min: number, max: number): number {
+  return Math.max(min, Math.min(val, max));
+}
+
+export default function SculptureCard({
+  title,
+  description,
+  id,
+  top,
+  left,
+  width,
+  height,
+}: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const offset = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const offset = useRef({ x: 0, y: 0 });
+  const isDragging = useRef(false);
+  const isResizing = useRef(false);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    const canvas = document.getElementById('canvas');
+    if (!el || !canvas) return;
 
-    let isDragging = false;
-    let isResizing = false;
+    const canvasRect = canvas.getBoundingClientRect();
 
-    const handleMouseDown = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).classList.contains('resize-handle')) {
-        isResizing = true;
+    const onMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+
+      const elRect = el.getBoundingClientRect();
+
+      if (target.classList.contains('resize-handle')) {
+        isResizing.current = true;
       } else {
-        isDragging = true;
-        const rect = el.getBoundingClientRect();
+        isDragging.current = true;
         offset.current = {
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top,
+          x: e.clientX - elRect.left,
+          y: e.clientY - elRect.top,
         };
-        e.preventDefault();
       }
 
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      el.style.zIndex = '1000';
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!el) return;
+    const onMouseMove = (e: MouseEvent) => {
+      if (!el || !canvas) return;
 
-      if (isDragging) {
-        el.style.left = `${e.clientX - offset.current.x}px`;
-        el.style.top = `${e.clientY - offset.current.y}px`;
+      const canvasRect = canvas.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+
+      if (isDragging.current) {
+        const newLeft = clamp(
+          e.clientX - canvasRect.left - offset.current.x,
+          0,
+          canvasRect.width - el.offsetWidth
+        );
+
+        const newTop = clamp(
+          e.clientY - canvasRect.top - offset.current.y,
+          0,
+          canvasRect.height - el.offsetHeight
+        );
+
+        el.style.left = `${newLeft}px`;
+        el.style.top = `${newTop}px`;
       }
 
-      if (isResizing) {
-        const rect = el.getBoundingClientRect();
-        el.style.width = `${e.clientX - rect.left}px`;
-        el.style.height = `${e.clientY - rect.top}px`;
+      if (isResizing.current) {
+        const newWidth = clamp(
+          e.clientX - elRect.left,
+          50,
+          canvasRect.width - (elRect.left - canvasRect.left)
+        );
+
+        const newHeight = clamp(
+          e.clientY - elRect.top,
+          50,
+          canvasRect.height - (elRect.top - canvasRect.top)
+        );
+
+        el.style.width = `${newWidth}px`;
+        el.style.height = `${newHeight}px`;
       }
     };
 
-    const handleMouseUp = async () => {
+    const onMouseUp = async () => {
       if (!el) return;
 
       const rect = el.getBoundingClientRect();
+      const canvasRect = canvas.getBoundingClientRect();
 
-      isDragging = false;
-      isResizing = false;
+      // Get position relative to canvas
+      const top = rect.top - canvasRect.top;
+      const left = rect.left - canvasRect.left;
+
+      const width = rect.width;
+      const height = rect.height;
+
+      isDragging.current = false;
+      isResizing.current = false;
+      el.style.zIndex = '0';
 
       try {
         const res = await fetch('/api/updateSculptureDimensions', {
@@ -69,28 +123,28 @@ export default function SculptureCard({ title, description, id, top, left, width
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id,
-            top: Number(rect.top.toFixed(2)),
-            left: Number(rect.left.toFixed(2)),
-            width: Number(rect.width.toFixed(2)),
-            height: Number(rect.height.toFixed(2)),
+            top: Number(top.toFixed(2)),
+            left: Number(left.toFixed(2)),
+            width: Number(width.toFixed(2)),
+            height: Number(height.toFixed(2)),
           }),
         });
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
-        console.log(`✅ Updated position & size for "${title}"`);
+        console.log(`✅ Updated "${title}"`);
       } catch (err: any) {
-        console.error('❌ Failed to update:', err.message);
+        console.error('❌ Failed to save:', err.message);
       }
 
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
     };
 
-    el.addEventListener('mousedown', handleMouseDown);
+    el.addEventListener('mousedown', onMouseDown);
 
     return () => {
-      el.removeEventListener('mousedown', handleMouseDown);
+      el.removeEventListener('mousedown', onMouseDown);
     };
   }, [id, title]);
 
@@ -98,14 +152,13 @@ export default function SculptureCard({ title, description, id, top, left, width
     <div
       ref={ref}
       id={id}
-      className="sculpture-card absolute border bg-white p-4 rounded shadow cursor-move"
+      className="absolute border bg-white p-4 rounded shadow"
       style={{
+        position: 'absolute',
         top: top ?? 0,
         left: left ?? 0,
         width: width ?? 200,
         height: height ?? 'auto',
-        position: 'absolute',
-        zIndex: 999,
       }}
     >
       <h2 className="text-lg font-semibold">{title}</h2>
