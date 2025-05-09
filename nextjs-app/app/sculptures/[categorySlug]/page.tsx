@@ -10,7 +10,9 @@ const query = groq`
   ]{
     _id,
     title,
-    description
+    description,
+    top,
+    left
   }
 `;// or correct path
 
@@ -33,6 +35,8 @@ export default async function CategoryPage({ params }: { params: { categorySlug:
               id={sculpture._id}
               title={sculpture.title}
               description={sculpture.description}
+              top={sculpture.top}
+              left={sculpture.left}
             />
           ))}
         </div>
