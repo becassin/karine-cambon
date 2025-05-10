@@ -20,6 +20,12 @@ export const category = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'background_color',
+      title: 'Background Color',
+      type: 'color',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
