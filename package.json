@@ -24,9 +24,11 @@
     "nextjs-app"
   ],
   "devDependencies": {
+    "@types/chroma-js": "^3.1.1",
     "npm-run-all": "^4.1.5"
   },
   "dependencies": {
-    "@sanity/color-input": "^4.0.3"
+    "@sanity/color-input": "^4.0.3",
+    "chroma-js": "^3.1.2"
   }
 }

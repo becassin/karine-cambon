@@ -27,6 +27,7 @@ export default function CanvasColorPicker({ categoryId, initialColor }: Props) {
         background_color: {
           _type: 'color',
           hex: newColor,
+          alpha: 1,
         },
       });
 

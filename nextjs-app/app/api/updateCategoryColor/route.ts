@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sanityWrite } from '@/lib/sanity'; // Ensure client has write access
+import chroma from 'chroma-js';
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,9 +17,52 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    // Log the incoming color data for debugging
+    console.log("Received color data:", background_color);
 
-    // Patch the category document in Sanity
-    await sanityWrite.patch(id).set({ background_color }).commit();
+
+    // Use chroma.js to get full color models
+    const color = chroma(background_color.hex);
+    const hsl = color.hsl();
+    const hsv = color.hsv();
+    const rgb = color.rgb();
+
+    // Prepare the full color object with all properties
+    const fullColor = {
+      _type: 'color',
+      hex: background_color.hex,
+      alpha: background_color.alpha,
+      hsl: {
+        _type: 'hslaColor',
+        a: background_color.alpha,
+        h: hsl[0],
+        s: hsl[1],
+        l: hsl[2],
+      },
+      hsv: {
+        _type: 'hsvaColor',
+        a: background_color.alpha,
+        h: hsv[0],
+        s: hsv[1],
+        v: hsv[2],
+      },
+      rgb: {
+        _type: 'rgbaColor',
+        a: background_color.alpha,
+        r: rgb[0],
+        g: rgb[1],
+        b: rgb[2],
+      },
+    };
+
+    // Log the full color object to be saved
+    console.log("Full color object to save:", fullColor);
+
+    // Save to Sanity
+    const result = await sanityWrite.patch(id).set({ background_color: fullColor }).commit();
+
+    // Log result from Sanity
+    console.log("Sanity result:", result);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
