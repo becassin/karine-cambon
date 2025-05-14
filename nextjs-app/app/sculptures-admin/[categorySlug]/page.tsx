@@ -72,6 +72,7 @@ const CategoryPage = () => {
       <CanvasColorPicker
         categoryId={category._id}
         initialColor={category.background_color?.hex}
+        editable={false}
       />
 
       <div id="canvas" className="relative w-full h-[1000px] border bg-gray-50 overflow-hidden">
@@ -90,6 +91,7 @@ const CategoryPage = () => {
                 width={sculpture.width}
                 height={sculpture.height}
                 image={sculpture.coverImage}
+                editable={false}
               />
             ))}
           </div>

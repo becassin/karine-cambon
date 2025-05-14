@@ -11,6 +11,7 @@ type Props = {
   width?: number;
   height?: number;
   image?: string;
+  editable?: boolean;
 };
 
 // Clamp helper to restrict values
@@ -27,6 +28,7 @@ export default function SculptureCard({
   width,
   height,
   image,
+  editable = false,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const offset = useRef({ x: 0, y: 0 });
@@ -34,6 +36,7 @@ export default function SculptureCard({
   const isResizing = useRef(false);
 
   useEffect(() => {
+    if (!editable) return;
     const el = ref.current;
     const canvas = document.getElementById('canvas');
     if (!el || !canvas) return;
@@ -148,7 +151,7 @@ export default function SculptureCard({
     return () => {
       el.removeEventListener('mousedown', onMouseDown);
     };
-  }, [id, title]);
+  }, [id, title, editable]);
 
   return (
     <div
@@ -176,10 +179,12 @@ export default function SculptureCard({
       />
 
       {/* Resize handle */}
-      <div
-        className="resize-handle absolute bottom-1 right-1 w-4 h-4 bg-gray-400 cursor-se-resize"
-        style={{ zIndex: 10 }}
-      />
+      {editable && (
+        <div
+          className="resize-handle absolute bottom-1 right-1 w-4 h-4 bg-gray-400 cursor-se-resize"
+          style={{ zIndex: 10 }}
+          />
+      )}
     </div>
   );
 }

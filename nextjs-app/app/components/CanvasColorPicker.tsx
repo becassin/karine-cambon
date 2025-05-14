@@ -5,9 +5,10 @@ import { useState, useEffect } from 'react';
 type Props = {
   categoryId: string;
   initialColor?: string;
+  editable?: boolean;
 };
 
-export default function CanvasColorPicker({ categoryId, initialColor }: Props) {
+export default function CanvasColorPicker({ categoryId, initialColor,editable = false }: Props) {
   const [color, setColor] = useState(initialColor || '#ffffff');
 
   useEffect(() => {
@@ -15,7 +16,9 @@ export default function CanvasColorPicker({ categoryId, initialColor }: Props) {
     if (canvas) {
       canvas.style.backgroundColor = color;
     }
-  }, [color]);
+  }, [color, editable]);
+
+  if (!editable) return;
 
   console.log(32);
 
@@ -62,14 +65,20 @@ export default function CanvasColorPicker({ categoryId, initialColor }: Props) {
   };
 
   return (
-    <div className="p-4">
-      <label className="mr-2 font-medium">Canvas Background:</label>
-      <input
-        type="color"
-        value={color}
-        onChange={handleChange}
-        className="w-8 h-8 cursor-pointer border rounded"
-      />
+    <div>
+    { editable && (
+        <div className="p-4">
+          <label className="mr-2 font-medium">Canvas Background:</label>
+          <input
+            type="color"
+            value={color}
+            onChange={handleChange}
+            className="w-8 h-8 cursor-pointer border rounded"
+          />
+        </div>
+    )}
     </div>
+
+
   );
 }
