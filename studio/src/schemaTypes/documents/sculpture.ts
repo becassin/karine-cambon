@@ -58,8 +58,8 @@ export const sculpture = defineType({
       type: 'number'
     }),
     defineField({
-      name: 'content',
-      title: 'Content',
+      name: 'description',
+      title: 'Description',
       type: 'blockContent',
     }),
     defineField({

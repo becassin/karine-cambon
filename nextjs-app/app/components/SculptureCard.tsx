@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { PortableText } from '@portabletext/react';
 
 type Props = {
   title: string;
@@ -41,8 +42,6 @@ export default function SculptureCard({
     const canvas = document.getElementById('canvas');
     if (!el || !canvas) return;
 
-    const canvasRect = canvas.getBoundingClientRect();
-
     const onMouseDown = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const elRect = el.getBoundingClientRect();
@@ -64,8 +63,10 @@ export default function SculptureCard({
     };
 
     const onMouseMove = (e: MouseEvent) => {
-      if (!ref.current || !canvas) return;
       const el = ref.current;
+      const canvas = document.getElementById('canvas');
+      if (!el || !canvas) return;
+
       const canvasRect = canvas.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
 
@@ -80,6 +81,7 @@ export default function SculptureCard({
           0,
           canvasRect.height - el.offsetHeight
         );
+
         el.style.left = `${newLeft}px`;
         el.style.top = `${newTop}px`;
       }
@@ -91,25 +93,21 @@ export default function SculptureCard({
           canvasRect.width - (elRect.left - canvasRect.left)
         );
 
-        const newHeight = clamp(
-          e.clientY - elRect.top,
-          50,
-          canvasRect.height - (elRect.top - canvasRect.top)
-        );
-
         el.style.width = `${newWidth}px`;
-        // el.style.height = `${newHeight}px`;
       }
     };
 
     const onMouseUp = async () => {
-      if (!ref.current || !canvas) return;
       const el = ref.current;
-      const canvasRect = canvas.getBoundingClientRect();
+      const canvas = document.getElementById('canvas');
+      if (!el || !canvas) return;
+
       const rect = el.getBoundingClientRect();
+      const canvasRect = canvas.getBoundingClientRect();
 
       const top = rect.top - canvasRect.top;
       const left = rect.left - canvasRect.left;
+
       const width = rect.width;
       const height = rect.height;
 
@@ -142,14 +140,19 @@ export default function SculptureCard({
     };
 
     el?.addEventListener('mousedown', onMouseDown);
+
     return () => {
       el?.removeEventListener('mousedown', onMouseDown);
     };
   }, [id, title, editable]);
 
-  const handleImageClick = () => {
-    if (!editable) setIsModalOpen(true);
-  };
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsModalOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   return (
     <>
@@ -158,22 +161,20 @@ export default function SculptureCard({
         id={id}
         className="absolute"
         style={{
-          position: 'absolute',
           top: top ?? 0,
           left: left ?? 0,
           width: width ?? 200,
           height: 'auto',
         }}
       >
-        {description && <p className="text-sm text-gray-600">{description}</p>}
 
         <img
           src={image}
-          onClick={handleImageClick}
           draggable={false}
           tabIndex={-1}
-          className="w-full h-auto select-none cursor-pointer"
-          style={{ outline: 'none', pointerEvents: editable ? 'none' : 'auto' }}
+          className="pointer-events-auto w-full h-auto select-none cursor-pointer"
+          style={{ outline: 'none' }}
+          onClick={() => !editable && setIsModalOpen(true)}
         />
 
         {editable && (
@@ -185,16 +186,33 @@ export default function SculptureCard({
       </div>
 
       {isModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
-          onClick={() => setIsModalOpen(false)}
-        >
-          <div className="text-center">
-            <img src={image} alt={title} className="max-h-[80vh] max-w-[90vw] mx-auto mb-4" />
-            <h2 className="text-white text-xl font-semibold">{title}</h2>
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex">
+          {/* Image Section */}
+          <div className="w-2/3 flex items-center justify-center">
+            <img src={image} className="max-h-[90vh] max-w-full" />
+          </div>
+
+          {/* Info Section */}
+          <div className="w-1/3 text-white p-10 relative flex flex-col justify-center">
+            {/* Close Button */}
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 text-white text-3xl hover:text-gray-400 focus:outline-none"
+              aria-label="Close modal"
+            >
+              &times;
+            </button>
+
+            <h2 className="text-3xl font-bold mb-4">{title}</h2>
+            {description && (
+              <div className="prose prose-invert prose-sm text-gray-100">
+                <PortableText value={description} />
+              </div>
+            )}
           </div>
         </div>
       )}
+
     </>
   );
 }

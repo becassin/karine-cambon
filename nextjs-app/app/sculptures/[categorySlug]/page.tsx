@@ -16,7 +16,7 @@ const query = groq`
   ]{
     _id,
     title,
-    description,
+    description[],
     top,
     left,
     width,
