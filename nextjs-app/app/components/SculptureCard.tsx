@@ -10,6 +10,7 @@ type Props = {
   left?: number;
   width?: number;
   height?: number;
+  image?: string;
 };
 
 // Clamp helper to restrict values
@@ -25,6 +26,7 @@ export default function SculptureCard({
   left,
   width,
   height,
+  image,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const offset = useRef({ x: 0, y: 0 });
@@ -96,7 +98,7 @@ export default function SculptureCard({
         );
 
         el.style.width = `${newWidth}px`;
-        el.style.height = `${newHeight}px`;
+        // el.style.height = `${newHeight}px`;
       }
     };
 
@@ -152,17 +154,26 @@ export default function SculptureCard({
     <div
       ref={ref}
       id={id}
-      className="absolute border bg-white p-4 rounded shadow"
+      className="absolute"
       style={{
         position: 'absolute',
         top: top ?? 0,
         left: left ?? 0,
         width: width ?? 200,
-        height: height ?? 'auto',
+        height: 'auto',
       }}
     >
-      <h2 className="text-lg font-semibold">{title}</h2>
+      {/* <h2 className="text-lg font-semibold">{title}</h2> */}
       {description && <p className="text-sm text-gray-600">{description}</p>}
+
+
+      <img
+        src={image}
+        draggable={false}
+        tabIndex={-1}
+        className="pointer-events-none w-full h-auto select-none"
+        style={{ outline: 'none' }}
+      />
 
       {/* Resize handle */}
       <div

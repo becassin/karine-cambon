@@ -20,7 +20,8 @@ const query = groq`
     top,
     left,
     width,
-    height
+    height,
+    "coverImage": coverImage.asset->url
   },
   "category": *[_type == "category" && slug.current == $slug][0]{
     _id,
@@ -88,6 +89,7 @@ const CategoryPage = () => {
                 left={sculpture.left}
                 width={sculpture.width}
                 height={sculpture.height}
+                image={sculpture.coverImage}
               />
             ))}
           </div>
