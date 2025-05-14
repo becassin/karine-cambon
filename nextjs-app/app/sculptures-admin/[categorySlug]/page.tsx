@@ -31,39 +31,57 @@ const query = groq`
 }
 `;
 
+const COOKIE_NAME = process.env.NEXT_PUBLIC_COOKIE_NAME || 'sculpture_auth';
+const PASSWORD = process.env.NEXT_PUBLIC_SIMPLE_PASSWORD || 'mySecret123';
+
 const CategoryPage = () => {
-  const { categorySlug } = useParams(); // Access dynamic categorySlug from URL
-  const [sculptures, setSculptures] = useState<any[]>([]); // State for sculptures
-  const [category, setCategory] = useState<any>(null); // State for category
-  const [loading, setLoading] = useState(true); // State to manage loading state
+  const { categorySlug } = useParams();
+  const [sculptures, setSculptures] = useState<any[]>([]);
+  const [category, setCategory] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [editable, setEditable] = useState(false);
 
-  // Fetch data when the component mounts or when the categorySlug changes
+  // Check cookie auth client-side
   useEffect(() => {
-    const fetchData = async () => {
-      if (!categorySlug) return; // Ensure we have a categorySlug
-      setLoading(true); // Set loading to true while data is being fetched
+    const checkAuth = () => {
+      console.log('document.cookie:', document.cookie);
 
-      try {
-        const { sculptures, category } = await sanity.fetch(query, { slug: categorySlug });
-        setSculptures(sculptures); // Update sculptures state
-        setCategory(category); // Update category state
-      } catch (error) {
-        console.error('Failed to fetch category data:', error);
-      } finally {
-        setLoading(false); // Set loading to false once data fetching is complete
+      const cookieValue = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith(`${COOKIE_NAME}=`))
+        ?.split('=')[1];
+
+      console.log(cookieValue);
+      console.log(PASSWORD);
+      if (cookieValue === PASSWORD) {
+        setEditable(true);
       }
     };
 
-    fetchData(); // Trigger the fetch function
-  }, [categorySlug]); // Re-run this effect if categorySlug changes
+    checkAuth();
+  }, []);
 
-  if (loading) {
-    return <div>Loading...</div>; // Loading state
-  }
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!categorySlug) return;
+      setLoading(true);
 
-  if (!category) {
-    return <div>Category not found</div>; // Handle case where category is not available
-  }
+      try {
+        const { sculptures, category } = await sanity.fetch(query, { slug: categorySlug });
+        setSculptures(sculptures);
+        setCategory(category);
+      } catch (error) {
+        console.error('Failed to fetch category data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [categorySlug]);
+
+  if (loading) return <div>Loading...</div>;
+  if (!category) return <div>Category not found</div>;
 
   return (
     <div className="p-6">
@@ -72,7 +90,7 @@ const CategoryPage = () => {
       <CanvasColorPicker
         categoryId={category._id}
         initialColor={category.background_color?.hex}
-        editable={false}
+        editable={editable}
       />
 
       <div id="canvas" className="relative w-full h-[1000px] border bg-gray-50 overflow-hidden">
@@ -91,7 +109,7 @@ const CategoryPage = () => {
                 width={sculpture.width}
                 height={sculpture.height}
                 image={sculpture.coverImage}
-                editable={false}
+                editable={editable}
               />
             ))}
           </div>
