@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   title: string;
@@ -14,7 +14,6 @@ type Props = {
   editable?: boolean;
 };
 
-// Clamp helper to restrict values
 function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(val, max));
 }
@@ -34,6 +33,7 @@ export default function SculptureCard({
   const offset = useRef({ x: 0, y: 0 });
   const isDragging = useRef(false);
   const isResizing = useRef(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!editable) return;
@@ -45,7 +45,6 @@ export default function SculptureCard({
 
     const onMouseDown = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-
       const elRect = el.getBoundingClientRect();
 
       if (target.classList.contains('resize-handle')) {
@@ -65,8 +64,8 @@ export default function SculptureCard({
     };
 
     const onMouseMove = (e: MouseEvent) => {
-      if (!el || !canvas) return;
-
+      if (!ref.current || !canvas) return;
+      const el = ref.current;
       const canvasRect = canvas.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
 
@@ -76,13 +75,11 @@ export default function SculptureCard({
           0,
           canvasRect.width - el.offsetWidth
         );
-
         const newTop = clamp(
           e.clientY - canvasRect.top - offset.current.y,
           0,
           canvasRect.height - el.offsetHeight
         );
-
         el.style.left = `${newLeft}px`;
         el.style.top = `${newTop}px`;
       }
@@ -106,15 +103,13 @@ export default function SculptureCard({
     };
 
     const onMouseUp = async () => {
-      if (!el) return;
-
-      const rect = el.getBoundingClientRect();
+      if (!ref.current || !canvas) return;
+      const el = ref.current;
       const canvasRect = canvas.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
 
-      // Get position relative to canvas
       const top = rect.top - canvasRect.top;
       const left = rect.left - canvasRect.left;
-
       const width = rect.width;
       const height = rect.height;
 
@@ -146,45 +141,60 @@ export default function SculptureCard({
       document.removeEventListener('mouseup', onMouseUp);
     };
 
-    el.addEventListener('mousedown', onMouseDown);
-
+    el?.addEventListener('mousedown', onMouseDown);
     return () => {
-      el.removeEventListener('mousedown', onMouseDown);
+      el?.removeEventListener('mousedown', onMouseDown);
     };
   }, [id, title, editable]);
 
+  const handleImageClick = () => {
+    if (!editable) setIsModalOpen(true);
+  };
+
   return (
-    <div
-      ref={ref}
-      id={id}
-      className="absolute"
-      style={{
-        position: 'absolute',
-        top: top ?? 0,
-        left: left ?? 0,
-        width: width ?? 200,
-        height: 'auto',
-      }}
-    >
-      {/* <h2 className="text-lg font-semibold">{title}</h2> */}
-      {description && <p className="text-sm text-gray-600">{description}</p>}
+    <>
+      <div
+        ref={ref}
+        id={id}
+        className="absolute"
+        style={{
+          position: 'absolute',
+          top: top ?? 0,
+          left: left ?? 0,
+          width: width ?? 200,
+          height: 'auto',
+        }}
+      >
+        {description && <p className="text-sm text-gray-600">{description}</p>}
 
+        <img
+          src={image}
+          onClick={handleImageClick}
+          draggable={false}
+          tabIndex={-1}
+          className="w-full h-auto select-none cursor-pointer"
+          style={{ outline: 'none', pointerEvents: editable ? 'none' : 'auto' }}
+        />
 
-      <img
-        src={image}
-        draggable={false}
-        tabIndex={-1}
-        className="pointer-events-none w-full h-auto select-none"
-        style={{ outline: 'none' }}
-      />
-
-      {/* Resize handle */}
-      {editable && (
-        <div
-          className="resize-handle absolute bottom-1 right-1 w-4 h-4 bg-gray-400 cursor-se-resize"
-          style={{ zIndex: 10 }}
+        {editable && (
+          <div
+            className="resize-handle absolute bottom-1 right-1 w-4 h-4 bg-gray-400 cursor-se-resize"
+            style={{ zIndex: 10 }}
           />
+        )}
+      </div>
+
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div className="text-center">
+            <img src={image} alt={title} className="max-h-[80vh] max-w-[90vw] mx-auto mb-4" />
+            <h2 className="text-white text-xl font-semibold">{title}</h2>
+          </div>
+        </div>
       )}
-    </div>
+    </>
   );
 }
