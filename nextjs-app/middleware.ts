@@ -15,5 +15,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/sculptures/:path*'], // ✅ Only runs on /sculptures/** routes
+  matcher: ['/sculptures-admin/:path*'], // ✅ Only runs on /sculptures/** routes
 };
