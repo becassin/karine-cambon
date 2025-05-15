@@ -1,6 +1,7 @@
 import { sanity } from '@/lib/sanity';
 import { groq } from 'next-sanity';
 import SculptureCard from '@/app/components/SculptureCard';
+import { PortableText } from '@portabletext/react';
 
 const query = groq`
   *[
@@ -16,15 +17,19 @@ const query = groq`
     width,
     height
   }
-`;// or correct path
+`;
 
-export default async function CategoryPage({ params }: { params: { categorySlug: string } }) {
-  const sculptures = await sanity.fetch(query, { slug: params.categorySlug });
+export type tParams = Promise<{ categorySlug: string[] }>;
+
+export default async function CategoryPage(props: { params: tParams }) {
+
+  const { categorySlug } = await props.params;
+  const sculptures = await sanity.fetch(query, { slug: categorySlug });
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">
-        Sculptures in “{params.categorySlug}”
+        Sculptures in “{categorySlug}”
       </h1>
 
       <div id="canvas" className="relative w-full h-[1000px] border bg-gray-50 overflow-hidden">
@@ -34,12 +39,12 @@ export default async function CategoryPage({ params }: { params: { categorySlug:
           <p>No sculptures found.</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
-            {sculptures.map((sculpture) => (
+              {sculptures.map((sculpture: any) => (
               <SculptureCard
                 key={sculpture._id}
                 id={sculpture._id}
                 title={sculpture.title}
-                description={sculpture.description}
+                description={<PortableText value={sculpture.description} />}
                 top={sculpture.top}
                 left={sculpture.left}
                 width={sculpture.width}
@@ -48,8 +53,6 @@ export default async function CategoryPage({ params }: { params: { categorySlug:
             ))}
           </div>
         )}
-
-
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 
 type Props = {
   title: string;
-  description?: string;
+  description?: React.ReactNode;
   id: string;
   top?: number;
   left?: number;
