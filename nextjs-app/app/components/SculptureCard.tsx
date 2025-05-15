@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { PortableText } from '@portabletext/react';
+ import { PortableTextBlock } from '@portabletext/types';
 
 type Props = {
   title: string;
-  description?: string;
+  description?: PortableTextBlock[]; // 👈 Change this line
   id: string;
   top?: number;
   left?: number;
