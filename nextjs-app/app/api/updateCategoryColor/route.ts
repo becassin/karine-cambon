@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sanityWrite } from '@/lib/sanity'; // Ensure client has write access
-import chroma from 'chroma-js';
+// import chroma from 'chroma-js';
 
 export async function POST(req: NextRequest) {
   try {
