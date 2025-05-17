@@ -95,3 +95,9 @@ export const pagesSlugs = defineQuery(`
   *[_type == "page" && defined(slug.current)]
   {"slug": slug.current}
 `);
+
+export const categoriesQuery = `*[_type == "category"]{
+  _id,
+  title,
+  slug
+}`;
