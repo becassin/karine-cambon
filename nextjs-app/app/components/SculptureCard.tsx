@@ -20,6 +20,24 @@ function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(val, max));
 }
 
+function updateCanvasHeight() {
+  const canvas = document.getElementById('canvas');
+  if (!canvas) return;
+
+  const cards = canvas.querySelectorAll('.sculpture-card');
+  let maxBottom = 0;
+
+  cards.forEach(card => {
+    const rect = card.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+    const bottom = rect.bottom - canvasRect.top;
+    maxBottom = Math.max(maxBottom, bottom);
+  });
+
+  const PADDING_BOTTOM = 100;
+  canvas.style.height = `${maxBottom + PADDING_BOTTOM}px`;
+}
+
 export default function SculptureCard({
   title,
   description,
@@ -71,20 +89,30 @@ export default function SculptureCard({
       const canvasRect = canvas.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
 
+      const PADDING_BOTTOM = 100; // px
+
       if (isDragging.current) {
         const newLeft = clamp(
           e.clientX - canvasRect.left - offset.current.x,
           0,
           canvasRect.width - el.offsetWidth
         );
-        const newTop = clamp(
-          e.clientY - canvasRect.top - offset.current.y,
+
+        const newTop = Math.max(
           0,
-          canvasRect.height - el.offsetHeight
+          e.clientY - canvasRect.top - offset.current.y
         );
 
         el.style.left = `${newLeft}px`;
         el.style.top = `${newTop}px`;
+
+        // 🔽 Extend canvas if needed, with padding
+        const cardBottom = newTop + el.offsetHeight + PADDING_BOTTOM;
+        const canvasCurrentHeight = canvas.offsetHeight;
+
+        if (cardBottom > canvasCurrentHeight) {
+          canvas.style.height = `${cardBottom}px`;
+        }
       }
 
       if (isResizing.current) {
@@ -132,9 +160,11 @@ export default function SculptureCard({
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
         console.log(`✅ Updated "${title}"`);
+        updateCanvasHeight();
       } catch (err: any) {
         console.error('❌ Failed to save:', err.message);
       }
+
 
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
@@ -160,7 +190,7 @@ export default function SculptureCard({
       <div
         ref={ref}
         id={id}
-        className="absolute"
+        className="absolute sculpture-card"
         style={{
           top: top ?? 0,
           left: left ?? 0,

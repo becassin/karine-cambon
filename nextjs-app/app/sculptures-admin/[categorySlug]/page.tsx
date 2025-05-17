@@ -34,6 +34,24 @@ const query = groq`
 const COOKIE_NAME = process.env.NEXT_PUBLIC_COOKIE_NAME || 'sculpture_auth';
 const PASSWORD = process.env.NEXT_PUBLIC_SIMPLE_PASSWORD || 'mySecret123';
 
+const updateCanvasHeight = () => {
+  const canvas = document.getElementById('canvas');
+  if (!canvas) return;
+
+  const cards = canvas.querySelectorAll('.absolute'); // Target sculpture cards
+  let maxBottom = 0;
+
+  cards.forEach(card => {
+    const rect = card.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+    const bottom = rect.bottom - canvasRect.top;
+    maxBottom = Math.max(maxBottom, bottom);
+  });
+
+  const PADDING_BOTTOM = 100;
+  canvas.style.height = `${maxBottom + PADDING_BOTTOM}px`;
+};
+
 const CategoryPage = () => {
   const { categorySlug } = useParams();
   const [sculptures, setSculptures] = useState<any[]>([]);
@@ -70,6 +88,12 @@ const CategoryPage = () => {
         const { sculptures, category } = await sanity.fetch(query, { slug: categorySlug });
         setSculptures(sculptures);
         setCategory(category);
+
+        // Wait for DOM render, then update canvas height
+        setTimeout(() => {
+          updateCanvasHeight();
+        }, 50);
+
       } catch (error) {
         console.error('Failed to fetch category data:', error);
       } finally {
