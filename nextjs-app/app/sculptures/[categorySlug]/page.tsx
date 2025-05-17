@@ -64,9 +64,7 @@ const CategoryPage = () => {
   if (!category) return <div>Category not found</div>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Sculptures in “{categorySlug}”</h1>
-
+    <div className="">
       <CanvasColorPicker
         categoryId={category._id}
         initialColor={category.background_color?.hex}
@@ -74,6 +72,10 @@ const CategoryPage = () => {
       />
 
       <div id="canvas" className="relative w-full h-[1000px] border bg-gray-50 overflow-hidden">
+
+        <div className='container mx-auto flex items-center justify-between'>
+          <h1 className="text-2xl font-bold pt-6">{category.title}</h1>
+        </div>
         {sculptures.length === 0 ? (
           <p>No sculptures found.</p>
         ) : (

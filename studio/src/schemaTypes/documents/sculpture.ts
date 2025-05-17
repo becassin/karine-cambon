@@ -14,60 +14,6 @@ export const sculpture = defineType({
   type: 'document',
   fields: [
     defineField({
-      name: 'title',
-      title: 'Title',
-      type: 'string',
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      description: 'A slug is required for the sculpture to show up in the preview',
-      options: {
-        source: 'title',
-        maxLength: 96,
-        isUnique: (value, context) => context.defaultIsUnique(value, context),
-      },
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: 'category',
-      title: 'Category',
-      type: 'reference',
-      to: [{ type: 'category' }]
-    }),
-    defineField({
-      name: 'top',
-      title: 'Top',
-      type: 'number'
-    }),
-    defineField({
-      name: 'left',
-      title: 'Left',
-      type: 'number'
-    }),
-    defineField({
-      name: 'width',
-      title: 'Width',
-      type: 'number'
-    }),
-    defineField({
-      name: 'height',
-      title: 'Height',
-      type: 'number'
-    }),
-    defineField({
-      name: 'description',
-      title: 'Description',
-      type: 'blockContent',
-    }),
-    defineField({
-      name: 'excerpt',
-      title: 'Excerpt',
-      type: 'text',
-    }),
-    defineField({
       name: 'coverImage',
       title: 'Cover Image',
       type: 'image',
@@ -97,16 +43,71 @@ export const sculpture = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'category',
+      title: 'Category',
+      type: 'reference',
+      to: [{ type: 'category' }]
+    }),
+    defineField({
+      name: 'title',
+      title: 'Title',
+      type: 'string',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      description: 'A slug is required for the sculpture to show up in the preview',
+      options: {
+        source: 'title',
+        maxLength: 96,
+        isUnique: (value, context) => context.defaultIsUnique(value, context),
+      },
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'top',
+      title: 'Top',
+      type: 'number',
+      hidden: true
+    }),
+    defineField({
+      name: 'left',
+      title: 'Left',
+      type: 'number',
+      hidden: true
+    }),
+    defineField({
+      name: 'width',
+      title: 'Width',
+      type: 'number',
+      hidden: true
+    }),
+    defineField({
+      name: 'height',
+      title: 'Height',
+      type: 'number',
+      hidden: true
+    }),
+    defineField({
+      name: 'description',
+      title: 'Description',
+      type: 'blockContent',
+    }),
+    defineField({
       name: 'date',
       title: 'Date',
       type: 'datetime',
       initialValue: () => new Date().toISOString(),
+      hidden: true
     }),
     defineField({
       name: 'author',
       title: 'Author',
       type: 'reference',
-      to: [{type: 'person'}],
+      to: [{ type: 'person' }],
+      hidden: true
     }),
   ],
   // List preview configuration. https://www.sanity.io/docs/previews-list-views
