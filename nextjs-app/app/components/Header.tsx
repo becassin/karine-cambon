@@ -54,7 +54,7 @@ export default function Header() {
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link className="flex items-center gap-2" href="/">
-          <span className="hidden lg:block text-lg font-semibold">
+          <span className="lg:block text-lg font-semibold">
             Karine Cambon
           </span>
         </Link>
