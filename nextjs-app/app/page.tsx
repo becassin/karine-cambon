@@ -4,8 +4,6 @@ import Link from "next/link";
 import { AllPosts } from "@/app/components/Posts";
 import GetStartedCode from "@/app/components/GetStartedCode";
 
-import UpdateTitleForm from '@/app/components/UpdateTitleForm';
-
 export default async function Page() {
   return (
     <>
@@ -59,9 +57,6 @@ export default async function Page() {
           </div>
         </div>
       </div>
-
-      <h1 className="text-2xl font-bold mb-6">Update Sculpture Title</h1>
-      <UpdateTitleForm />
 
       <div className="border-t border-gray-10">
         <div className="container">
