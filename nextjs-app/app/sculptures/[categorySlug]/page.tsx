@@ -61,6 +61,15 @@ const CategoryPage = () => {
   const editable = false;
   const [loggedIn, setLoggedIn] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkWidth = () => setIsMobile(window.innerWidth < 1024);
+    checkWidth();
+    window.addEventListener('resize', checkWidth);
+    return () => window.removeEventListener('resize', checkWidth);
+  }, []);
+
 
 
     // Check cookie auth client-side
@@ -111,6 +120,13 @@ const CategoryPage = () => {
   if (loading) return <div>Loading...</div>;
   if (!category) return <div>Category not found</div>;
 
+  let sculpturesClasses = "relative h-[2000px]";
+  let canvasClasses = "relative w-full h-[1000px] border bg-gray-50 overflow-hidden";
+  if (isMobile) {
+    sculpturesClasses = "columns-1 sm:columns-2 gap-4 p-4";
+    canvasClasses = "relative w-full h-[1000px] border bg-gray-50";
+  }
+
   return (
     <div className="">
       <CanvasColorPicker
@@ -129,15 +145,17 @@ const CategoryPage = () => {
       )}
 
 
-      <div id="canvas" className="relative w-full h-[1000px] border bg-gray-50 overflow-hidden">
+      <div id="canvas" className={canvasClasses}>
 
         <div className='container mx-auto flex items-center justify-between'>
           <h1 className="text-m font-bold pt-6">{category.title}</h1>
         </div>
+
+
         {sculptures.length === 0 ? (
           <p>No sculptures found.</p>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className={sculpturesClasses}>
             {sculptures.map((sculpture) => (
               <SculptureCard
                 key={sculpture._id}
@@ -150,6 +168,7 @@ const CategoryPage = () => {
                 height={sculpture.height}
                 image={sculpture.coverImage}
                 editable={editable}
+                isMobile={isMobile}
               />
             ))}
           </div>

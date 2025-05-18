@@ -14,6 +14,7 @@ type Props = {
   height?: number;
   image?: string;
   editable?: boolean;
+  isMobile?: boolean;
 };
 
 function clamp(val: number, min: number, max: number): number {
@@ -48,6 +49,7 @@ export default function SculptureCard({
   height,
   image,
   editable = false,
+  isMobile = false,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const offset = useRef({ x: 0, y: 0 });
@@ -185,16 +187,22 @@ export default function SculptureCard({
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
+  let positioningClasses = "absolute sculpture-card";
+  const widthMobile = "100%";
+  if (isMobile) {
+    positioningClasses = "sculpture-card mb-4";
+  }
+
   return (
     <>
       <div
         ref={ref}
         id={id}
-        className="absolute sculpture-card"
+        className={positioningClasses}
         style={{
           top: top ?? 0,
           left: left ?? 0,
-          width: width ?? 200,
+          width: isMobile ? widthMobile : width,
           height: 'auto',
         }}
       >
