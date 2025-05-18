@@ -30,21 +30,24 @@ export default async function Page() {
   }`)
 
   return (
-    <div className="max-w-7xl mx-auto my-14 px-4 md:px-8">
-      <div className="flex flex-col md:flex-row md:gap-12 items-center">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-16">
+      <div className="flex flex-col-reverse md:flex-row items-center md:items-stretch gap-12 md:gap-40">
+
         {/* Text section */}
-        <div className="w-full md:w-2/5 text-justify mb-8 md:mb-0">
-          <PortableText value={settings.about} />
+        <div className="w-full md:w-4/10 flex items-center">
+          <div className="text-justify">
+            <PortableText value={settings.about} />
+          </div>
         </div>
 
         {/* Image section */}
-        <div className="w-full md:w-3/5">
+        <div className="w-full md:w-6/10">
           <Image
             src={settings.coverImage.asset.url}
             alt={settings.coverImage.alt || 'Cover image'}
             width={1200}
-            height={600}
-            className="w-full h-auto object-cover"
+            height={800}
+            className="w-full h-auto object-cover shadow-md"
           />
         </div>
       </div>
