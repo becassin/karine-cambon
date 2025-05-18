@@ -6,6 +6,7 @@ import { groq } from 'next-sanity';
 import SculptureCard from '@/app/components/SculptureCard';
 import CanvasColorPicker from '@/app/components/CanvasColorPicker';
 import { useParams } from 'next/navigation';
+import Link from "next/link";
 
 const query = groq`
 {
@@ -116,6 +117,14 @@ const CategoryPage = () => {
         initialColor={category.background_color?.hex}
         editable={editable}
       />
+
+      <Link
+        href={`/sculptures/${categorySlug}`}
+        className="block px-4 py-2 hover:bg-gray-100"
+        onClick={() => setDesktopDropdownOpen(false)}
+      >
+        Voir
+      </Link>
 
       <div id="canvas" className="relative w-full h-[1000px] border bg-gray-50 overflow-hidden">
         {sculptures.length === 0 ? (

@@ -6,6 +6,7 @@ import { groq } from 'next-sanity';
 import SculptureCard from '@/app/components/SculptureCard';
 import CanvasColorPicker from '@/app/components/CanvasColorPicker';
 import { useParams } from 'next/navigation';
+import Link from "next/link";
 
 const query = groq`
 {
@@ -58,6 +59,29 @@ const CategoryPage = () => {
   const [category, setCategory] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const editable = false;
+  const [loggedIn, setLoggedIn] = useState(false);
+
+
+
+    // Check cookie auth client-side
+    useEffect(() => {
+      const checkAuth = () => {
+        console.log('document.cookie:', document.cookie);
+
+        const cookieValue = document.cookie
+          .split('; ')
+          .find((row) => row.startsWith(`${COOKIE_NAME}=`))
+          ?.split('=')[1];
+
+        console.log(cookieValue);
+        console.log(PASSWORD);
+        if (cookieValue === PASSWORD) {
+          setLoggedIn(true);
+        }
+      };
+
+      checkAuth();
+    }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,6 +118,16 @@ const CategoryPage = () => {
         initialColor={category.background_color?.hex}
         editable={editable}
       />
+      {loggedIn && (
+        <Link
+          href={`/sculptures-admin/${categorySlug}`}
+          className="block px-4 py-2 hover:bg-gray-100"
+          onClick={() => setDesktopDropdownOpen(false)}
+        >
+          Éditer
+        </Link>
+      )}
+
 
       <div id="canvas" className="relative w-full h-[1000px] border bg-gray-50 overflow-hidden">
 
