@@ -126,7 +126,7 @@ const CategoryPage = () => {
         Voir
       </Link>
 
-      <div id="canvas" className="relative w-full h-[1000px] border bg-gray-50 overflow-hidden">
+      <div id="canvas" className="relative container h-[1000px] border bg-gray-50 overflow-hidden">
         {sculptures.length === 0 ? (
           <p>No sculptures found.</p>
         ) : (

@@ -120,7 +120,7 @@ const CategoryPage = () => {
   if (loading) return <div>Loading...</div>;
   if (!category) return <div>Category not found</div>;
 
-  let sculpturesClasses = "relative h-[2000px]";
+  let sculpturesClasses = "container relative h-[2000px]";
   let canvasClasses = "relative w-full h-[1000px] border bg-gray-50 overflow-hidden";
   if (isMobile) {
     sculpturesClasses = "columns-1 sm:columns-2 gap-4 p-4";
