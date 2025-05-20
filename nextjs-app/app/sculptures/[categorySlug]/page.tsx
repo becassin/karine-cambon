@@ -52,7 +52,7 @@ const updateCanvasHeight = () => {
   });
 
   const PADDING_BOTTOM = 100;
-  canvas.style.height = `${maxBottom + PADDING_BOTTOM}px`;
+  canvas.style.minHeight = `${maxBottom + PADDING_BOTTOM}px`;
 };
 
 const CategoryPage = () => {
