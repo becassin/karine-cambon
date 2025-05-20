@@ -76,13 +76,25 @@ export const sculpture = defineType({
       name: 'left',
       title: 'Left',
       type: 'number',
-      hidden: true
+      hidden: false
+    }),
+    defineField({
+      name: 'left_percentage',
+      title: 'Left (percentage)',
+      type: 'string',
+      hidden: false
     }),
     defineField({
       name: 'width',
       title: 'Width',
       type: 'number',
-      hidden: true
+      hidden: false
+    }),
+    defineField({
+      name: 'width_percentage',
+      title: 'Width (percentage)',
+      type: 'string',
+      hidden: false
     }),
     defineField({
       name: 'height',

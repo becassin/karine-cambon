@@ -20,8 +20,6 @@ export default function CanvasColorPicker({ categoryId, initialColor,editable = 
 
   if (!editable) return;
 
-  console.log(32);
-
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newColor = e.target.value;
     setColor(newColor);

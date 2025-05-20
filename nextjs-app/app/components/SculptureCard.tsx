@@ -10,7 +10,9 @@ type Props = {
   id: string;
   top?: number;
   left?: number;
+  left_percentage?: string;
   width?: number;
+  width_percentage? : string;
   height?: number;
   image?: string;
   editable?: boolean;
@@ -45,7 +47,9 @@ export default function SculptureCard({
   id,
   top,
   left,
+  left_percentage,
   width,
+  width_percentage,
   height,
   image,
   editable = false,
@@ -138,9 +142,17 @@ export default function SculptureCard({
 
       const top = rect.top - canvasRect.top;
       const left = rect.left - canvasRect.left;
+      const left_percentage = left * 100 / canvasRect.width + "%";
 
       const width = rect.width;
+      const width_percentage = width * 100 / canvasRect.width + "%";
       const height = rect.height;
+
+      console.log("canvasRect");
+      console.log(canvasRect);
+      console.log("percentage");
+      console.log(width_percentage + "%");
+      console.log(left_percentage + "%");
 
       isDragging.current = false;
       isResizing.current = false;
@@ -154,7 +166,9 @@ export default function SculptureCard({
             id,
             top: Number(top.toFixed(2)),
             left: Number(left.toFixed(2)),
+            left_percentage: left_percentage,
             width: Number(width.toFixed(2)),
+            width_percentage: width_percentage,
             height: Number(height.toFixed(2)),
           }),
         });
@@ -187,10 +201,14 @@ export default function SculptureCard({
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  let positioningClasses = "absolute sculpture-card";
+  let positioningClasses = "absolute sculpture-card bg-red-100";
+  if (!width_percentage) {
+    width_percentage = "5%";
+  }
   const widthMobile = "100%";
   if (isMobile) {
-    positioningClasses = "sculpture-card mb-4";
+    console.log("woohoo");
+    positioningClasses = "sculpture-card mb-4 bg-red-100";
   }
 
   return (
@@ -201,8 +219,8 @@ export default function SculptureCard({
         className={positioningClasses}
         style={{
           top: top ?? 0,
-          left: left ?? 0,
-          width: isMobile ? widthMobile : width,
+          left: left_percentage ?? 0,
+          width: isMobile ? widthMobile : width_percentage,
           height: 'auto',
         }}
       >

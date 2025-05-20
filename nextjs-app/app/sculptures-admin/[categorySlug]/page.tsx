@@ -20,7 +20,9 @@ const query = groq`
     description[],
     top,
     left,
+    left_percentage,
     width,
+    width_percentage,
     height,
     "coverImage": coverImage.asset->url
   },
@@ -59,6 +61,15 @@ const CategoryPage = () => {
   const [category, setCategory] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editable, setEditable] = useState(false);
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkWidth = () => setIsMobile(window.innerWidth < 1024);
+    checkWidth();
+    window.addEventListener('resize', checkWidth);
+    return () => window.removeEventListener('resize', checkWidth);
+  }, []);
 
   // Check cookie auth client-side
   useEffect(() => {
@@ -139,10 +150,13 @@ const CategoryPage = () => {
                 description={sculpture.description}
                 top={sculpture.top}
                 left={sculpture.left}
+                left_percentage={sculpture.left_percentage}
                 width={sculpture.width}
+                width_percentage={sculpture.width_percentage}
                 height={sculpture.height}
                 image={sculpture.coverImage}
                 editable={editable}
+                isMobile={isMobile}
               />
             ))}
           </div>
