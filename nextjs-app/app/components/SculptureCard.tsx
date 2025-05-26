@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { PortableText } from '@portabletext/react';
- import { PortableTextBlock } from '@portabletext/types';
+import { PortableTextBlock } from '@portabletext/types';
+import { urlFor } from "@/lib/imageUrl";
 
 type Props = {
   title: string;
@@ -14,7 +15,7 @@ type Props = {
   width?: number;
   width_percentage? : string;
   height?: number;
-  image?: string;
+  image?: any;
   editable?: boolean;
   isMobile?: boolean;
 };
@@ -226,7 +227,7 @@ export default function SculptureCard({
       >
 
         <img
-          src={image}
+          src={image ? urlFor(image).url() : ''}
           draggable={false}
           tabIndex={-1}
           className="pointer-events-auto w-full h-auto select-none cursor-pointer"

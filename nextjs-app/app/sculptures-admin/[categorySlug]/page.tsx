@@ -24,7 +24,7 @@ const query = groq`
     width,
     width_percentage,
     height,
-    "coverImage": coverImage.asset->url
+    "coverImage": coverImage
   },
   "category": *[_type == "category" && slug.current == $slug][0]{
     _id,
