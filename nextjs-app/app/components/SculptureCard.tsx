@@ -247,7 +247,7 @@ export default function SculptureCard({
         <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex">
           {/* Image Section */}
           <div className="w-2/3 flex items-center justify-center">
-            <img src={image} className="max-h-[90vh] max-w-full" />
+            <img src={image ? urlFor(image).url() : ''} className="max-h-[90vh] max-w-full" />
           </div>
 
           {/* Info Section */}
