@@ -24,7 +24,8 @@ const query = groq`
     width,
     width_percentage,
     height,
-    "coverImage": coverImage
+    "coverImage": coverImage,
+    extraImages
   },
   "category": *[_type == "category" && slug.current == $slug][0]{
     _id,
@@ -170,6 +171,7 @@ const CategoryPage = () => {
                 image={sculpture.coverImage}
                 editable={editable}
                 isMobile={isMobile}
+                extraImages={sculpture.extraImages}
               />
             ))}
           </div>

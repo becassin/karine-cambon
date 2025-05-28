@@ -18,6 +18,7 @@ type Props = {
   image?: any;
   editable?: boolean;
   isMobile?: boolean;
+  extraImages?: any[];
 };
 
 function clamp(val: number, min: number, max: number): number {
@@ -55,6 +56,7 @@ export default function SculptureCard({
   image,
   editable = false,
   isMobile = false,
+  extraImages = [],
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const offset = useRef({ x: 0, y: 0 });

@@ -43,6 +43,12 @@ export const sculpture = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'extraImages',
+      title: 'Extra Images',
+      type: 'array',
+      of: [{ type: 'image' }]
+    }),
+    defineField({
       name: 'category',
       title: 'Category',
       type: 'reference',
