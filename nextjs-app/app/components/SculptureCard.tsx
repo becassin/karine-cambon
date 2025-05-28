@@ -7,18 +7,18 @@ import { urlFor } from "@/lib/imageUrl";
 
 type Props = {
   title: string;
-  description?: PortableTextBlock[]; // 👈 Change this line
+  description?: PortableTextBlock[];
   id: string;
   top?: number;
   left?: number;
   left_percentage?: string;
   width?: number;
-  width_percentage? : string;
+  width_percentage?: string;
   height?: number;
   image?: any;
   editable?: boolean;
   isMobile?: boolean;
-  extraImages?: any[];
+  extraImages?: any[]; // ✅ New prop
 };
 
 function clamp(val: number, min: number, max: number): number {
@@ -56,13 +56,18 @@ export default function SculptureCard({
   image,
   editable = false,
   isMobile = false,
-  extraImages = [],
+  extraImages = [], // ✅ Default to empty array
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const offset = useRef({ x: 0, y: 0 });
   const isDragging = useRef(false);
   const isResizing = useRef(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0); // ✅ Track current slide
+
+  useEffect(() => {
+    if (isModalOpen) setCurrentSlide(0); // ✅ Reset slide on modal open
+  }, [isModalOpen]);
 
   useEffect(() => {
     if (!editable) return;
@@ -98,7 +103,7 @@ export default function SculptureCard({
       const canvasRect = canvas.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
 
-      const PADDING_BOTTOM = 100; // px
+      const PADDING_BOTTOM = 100;
 
       if (isDragging.current) {
         const newLeft = clamp(
@@ -115,7 +120,6 @@ export default function SculptureCard({
         el.style.left = `${newLeft}px`;
         el.style.top = `${newTop}px`;
 
-        // 🔽 Extend canvas if needed, with padding
         const cardBottom = newTop + el.offsetHeight + PADDING_BOTTOM;
         const canvasCurrentHeight = canvas.offsetHeight;
 
@@ -151,12 +155,6 @@ export default function SculptureCard({
       const width_percentage = width * 100 / canvasRect.width + "%";
       const height = rect.height;
 
-      console.log("canvasRect");
-      console.log(canvasRect);
-      console.log("percentage");
-      console.log(width_percentage + "%");
-      console.log(left_percentage + "%");
-
       isDragging.current = false;
       isResizing.current = false;
       el.style.zIndex = '0';
@@ -184,7 +182,6 @@ export default function SculptureCard({
         console.error('❌ Failed to save:', err.message);
       }
 
-
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
     };
@@ -205,14 +202,11 @@ export default function SculptureCard({
   }, []);
 
   let positioningClasses = "absolute sculpture-card bg-red-100";
-  if (!width_percentage) {
-    width_percentage = "5%";
-  }
+  if (!width_percentage) width_percentage = "5%";
   const widthMobile = "100%";
-  if (isMobile) {
-    console.log("woohoo");
-    positioningClasses = "sculpture-card mb-4 bg-red-100";
-  }
+  if (isMobile) positioningClasses = "sculpture-card mb-4 bg-red-100";
+
+  const allImages = [image, ...(extraImages || [])];
 
   return (
     <>
@@ -227,7 +221,6 @@ export default function SculptureCard({
           height: 'auto',
         }}
       >
-
         <img
           src={image ? urlFor(image).url() : ''}
           draggable={false}
@@ -246,15 +239,40 @@ export default function SculptureCard({
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex">
-          {/* Image Section */}
-          <div className="w-2/3 flex items-center justify-center">
-            <img src={image ? urlFor(image).url() : ''} className="max-h-[90vh] max-w-full" />
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex overflow-auto">
+          {/* Slideshow Section */}
+          <div className="w-2/3 flex flex-col items-center justify-center p-6 relative">
+            {allImages.length > 0 && (
+              <>
+                <img
+                  src={urlFor(allImages[currentSlide]).url()}
+                  className="max-h-[80vh] max-w-full"
+                />
+
+                {allImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setCurrentSlide((prev) => (prev - 1 + allImages.length) % allImages.length)}
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-3xl px-4 py-2 hover:text-gray-400"
+                      aria-label="Previous slide"
+                    >
+                      ‹
+                    </button>
+                    <button
+                      onClick={() => setCurrentSlide((prev) => (prev + 1) % allImages.length)}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-3xl px-4 py-2 hover:text-gray-400"
+                      aria-label="Next slide"
+                    >
+                      ›
+                    </button>
+                  </>
+                )}
+              </>
+            )}
           </div>
 
           {/* Info Section */}
           <div className="w-1/3 text-white p-10 relative flex flex-col justify-center">
-            {/* Close Button */}
             <button
               onClick={() => setIsModalOpen(false)}
               className="absolute top-4 right-4 text-white text-3xl hover:text-gray-400 focus:outline-none"
@@ -272,7 +290,6 @@ export default function SculptureCard({
           </div>
         </div>
       )}
-
     </>
   );
 }
