@@ -46,7 +46,15 @@ export const sculpture = defineType({
       name: 'extraImages',
       title: 'Extra Images',
       type: 'array',
-      of: [{ type: 'image' }]
+      of: [
+        defineField({
+          name: 'Image',
+          type: 'image',
+          options: {
+            hotspot: true,
+          }
+        })
+      ],
     }),
     defineField({
       name: 'category',
