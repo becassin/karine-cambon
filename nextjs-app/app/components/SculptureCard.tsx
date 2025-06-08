@@ -18,11 +18,16 @@ type Props = {
   image?: any;
   editable?: boolean;
   isMobile?: boolean;
-  extraImages?: any[]; // ✅ New prop
+  extraImages?: any[];
 };
 
 function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(val, max));
+}
+
+// 🔧 Snap helper
+function snapToGrid(value: number, gridSize = 10): number {
+  return Math.round(value / gridSize) * gridSize;
 }
 
 function updateCanvasHeight() {
@@ -56,17 +61,17 @@ export default function SculptureCard({
   image,
   editable = false,
   isMobile = false,
-  extraImages = [], // ✅ Default to empty array
+  extraImages = [],
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const offset = useRef({ x: 0, y: 0 });
   const isDragging = useRef(false);
   const isResizing = useRef(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0); // ✅ Track current slide
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    if (isModalOpen) setCurrentSlide(0); // ✅ Reset slide on modal open
+    if (isModalOpen) setCurrentSlide(0);
   }, [isModalOpen]);
 
   useEffect(() => {
@@ -102,20 +107,19 @@ export default function SculptureCard({
 
       const canvasRect = canvas.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
-
       const PADDING_BOTTOM = 100;
 
       if (isDragging.current) {
-        const newLeft = clamp(
+        const newLeft = snapToGrid(clamp(
           e.clientX - canvasRect.left - offset.current.x,
           0,
           canvasRect.width - el.offsetWidth
-        );
+        ));
 
-        const newTop = Math.max(
+        const newTop = snapToGrid(Math.max(
           0,
           e.clientY - canvasRect.top - offset.current.y
-        );
+        ));
 
         el.style.left = `${newLeft}px`;
         el.style.top = `${newTop}px`;
@@ -129,11 +133,11 @@ export default function SculptureCard({
       }
 
       if (isResizing.current) {
-        const newWidth = clamp(
+        const newWidth = snapToGrid(clamp(
           e.clientX - elRect.left,
           50,
           canvasRect.width - (elRect.left - canvasRect.left)
-        );
+        ));
 
         el.style.width = `${newWidth}px`;
       }
@@ -147,13 +151,14 @@ export default function SculptureCard({
       const rect = el.getBoundingClientRect();
       const canvasRect = canvas.getBoundingClientRect();
 
-      const top = rect.top - canvasRect.top;
-      const left = rect.left - canvasRect.left;
-      const left_percentage = left * 100 / canvasRect.width + "%";
+      // 🔧 Snap all saved dimensions
+      const top = snapToGrid(rect.top - canvasRect.top);
+      const left = snapToGrid(rect.left - canvasRect.left);
+      const width = snapToGrid(rect.width);
+      const height = snapToGrid(rect.height);
 
-      const width = rect.width;
-      const width_percentage = width * 100 / canvasRect.width + "%";
-      const height = rect.height;
+      const left_percentage = (left * 100 / canvasRect.width) + "%";
+      const width_percentage = (width * 100 / canvasRect.width) + "%";
 
       isDragging.current = false;
       isResizing.current = false;
@@ -163,15 +168,7 @@ export default function SculptureCard({
         const res = await fetch('/api/updateSculptureDimensions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id,
-            top: Number(top.toFixed(2)),
-            left: Number(left.toFixed(2)),
-            left_percentage: left_percentage,
-            width: Number(width.toFixed(2)),
-            width_percentage: width_percentage,
-            height: Number(height.toFixed(2)),
-          }),
+          body: JSON.stringify({ id, top, left, left_percentage, width, width_percentage, height }),
         });
 
         const data = await res.json();
@@ -215,7 +212,7 @@ export default function SculptureCard({
         id={id}
         className={positioningClasses}
         style={{
-          top: top ?? 0,
+          top: snapToGrid(top ?? 0), // 🔧 Snap fallback
           left: left_percentage ?? 0,
           width: isMobile ? widthMobile : width_percentage,
           height: 'auto',
@@ -240,7 +237,6 @@ export default function SculptureCard({
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex overflow-auto">
-          {/* Slideshow Section */}
           <div className="w-2/3 flex flex-col items-center justify-center p-6 relative">
             {allImages.length > 0 && (
               <>
@@ -248,38 +244,30 @@ export default function SculptureCard({
                   src={urlFor(allImages[currentSlide]).url()}
                   className="max-h-[80vh] max-w-full"
                 />
-
                 {allImages.length > 1 && (
                   <>
                     <button
                       onClick={() => setCurrentSlide((prev) => (prev - 1 + allImages.length) % allImages.length)}
                       className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-3xl px-4 py-2 hover:text-gray-400"
                       aria-label="Previous slide"
-                    >
-                      ‹
-                    </button>
+                    >‹</button>
                     <button
                       onClick={() => setCurrentSlide((prev) => (prev + 1) % allImages.length)}
                       className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-3xl px-4 py-2 hover:text-gray-400"
                       aria-label="Next slide"
-                    >
-                      ›
-                    </button>
+                    >›</button>
                   </>
                 )}
               </>
             )}
           </div>
 
-          {/* Info Section */}
           <div className="w-1/3 text-white p-10 relative flex flex-col justify-center">
             <button
               onClick={() => setIsModalOpen(false)}
               className="absolute top-4 right-4 text-white text-3xl hover:text-gray-400 focus:outline-none"
               aria-label="Close modal"
-            >
-              &times;
-            </button>
+            >&times;</button>
 
             <h2 className="text-3xl font-bold mb-4">{title}</h2>
             {description && (

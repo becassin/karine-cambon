@@ -94,7 +94,7 @@ export default function Header() {
         <nav className="hidden lg:block">
           <ul className="flex items-center gap-6 text-sm font-medium">
             <li>
-              <Link href="/about">About</Link>
+              <Link href="/about">À Propos</Link>
             </li>
 
             <li
