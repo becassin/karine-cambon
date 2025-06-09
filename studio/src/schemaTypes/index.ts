@@ -2,6 +2,7 @@ import {person} from './documents/person'
 import {page} from './documents/page'
 import {post} from './documents/post'
 import { sculpture } from './documents/sculpture'
+import { guestEntry } from './documents/guestEntry'
 import { category } from './documents/category'
 import {callToAction} from './objects/callToAction'
 import {infoSection} from './objects/infoSection'
@@ -20,6 +21,7 @@ export const schemaTypes = [
   sculpture,
   category,
   person,
+  guestEntry,
   // Objects
   blockContent,
   infoSection,
