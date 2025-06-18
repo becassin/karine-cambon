@@ -4,7 +4,7 @@ import { createClient } from '@sanity/client';
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: 'production',
+  dataset: 'sculptures',
   apiVersion: '2024-06-01',
   useCdn: false,
   token: process.env.SANITY_API_IMAGE_PUBLICATOR_TOKEN!,
