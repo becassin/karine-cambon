@@ -19,6 +19,8 @@ export const config = {
   matcher: [
     '/sculptures-admin/:path*',
     '/sculptures/:path*',
+    '/contact',
+    '/guestbook',
     '/'
   ], // ✅ Only runs on /sculptures/** routes
 };

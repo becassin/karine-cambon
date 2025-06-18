@@ -93,12 +93,13 @@ export default function Header() {
         {/* Desktop nav */}
         <nav className="hidden lg:block">
           <ul className="flex items-center gap-6 text-sm font-medium">
-            <li>
-              <Link href="/about">À Propos</Link>
-            </li>
 
             <li>
               <Link href="/guestbook">Livre d&apos;Or</Link>
+            </li>
+
+            <li>
+              <Link href="/contact">Contact</Link>
             </li>
 
             <li
