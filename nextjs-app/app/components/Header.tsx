@@ -98,7 +98,7 @@ export default function Header() {
             </li>
 
             <li>
-              <Link href="/guestbook">Livre d'Or</Link>
+              <Link href="/guestbook">Livre d&apos;Or</Link>
             </li>
 
             <li
