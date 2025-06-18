@@ -8,6 +8,11 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(req: Request) {
   const { name, email, message } = await req.json();
 
+  const resendEmail = process.env.RESEND_EMAIL;
+  if (!resendEmail) {
+    return NextResponse.json({ error: 'Missing RESEND_EMAIL environment variable' }, { status: 500 });
+  }
+
   if (!name || !email || !message) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
@@ -15,10 +20,10 @@ export async function POST(req: Request) {
   try {
     // Send email
     await resend.emails.send({
-      from: 'Website Contact <' + process.env.RESEND_EMAIL + '>',
-      to: process.env.RESEND_EMAIL,
+      from: `Website Contact <${resendEmail}>`,
+      to: resendEmail,
       subject: `New message from ${name}`,
-      reply_to: email,
+      replyTo: email,
       text: `Name: ${name}\nEmail: ${email}\nMessage:\n${message}`,
     });
 
