@@ -18,6 +18,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing name or message' }, { status: 400 });
   }
 
+  if (body.email_confirm) {
+    return NextResponse.json({ error: 'Spam detected' }, { status: 400 });
+  }
+
   try {
     const entry = await client.create({
       _type: 'guestEntry',

@@ -97,6 +97,10 @@ export default function Header() {
               <Link href="/about">À Propos</Link>
             </li>
 
+            <li>
+              <Link href="/guestbook">Livre d'Or</Link>
+            </li>
+
             <li
               className="relative"
               onMouseEnter={handleMouseEnter}

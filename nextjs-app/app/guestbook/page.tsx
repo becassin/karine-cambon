@@ -29,16 +29,24 @@ export default function GuestBookPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus('submitting');
     setError(null);
+
+    const formEl = e.currentTarget;
+    const emailConfirmValue = (formEl.elements.namedItem('email_confirm') as HTMLInputElement)?.value;
+
+    const payload = {
+      ...form,
+      email_confirm: emailConfirmValue || '',
+    };
 
     try {
       const res = await fetch('/api/guestbook', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -75,6 +83,13 @@ export default function GuestBookPage() {
           onChange={handleChange}
           className="w-full border border-gray-300 p-2"
           required
+        />
+        <input
+          type="text"
+          name="email_confirm"
+          style={{ display: 'none' }}
+          tabIndex={-1}
+          autoComplete="off"
         />
         <button
           type="submit"
