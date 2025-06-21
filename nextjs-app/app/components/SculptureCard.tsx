@@ -229,6 +229,7 @@ export default function SculptureCard({
             className="pointer-events-auto w-full h-auto select-none cursor-pointer"
             style={{ outline: 'none' }}
             draggable={false}
+            priority={true}
             onClick={() => !editable && setIsModalOpen(true)}
             onLoad={() => {
               updateCanvasHeight();

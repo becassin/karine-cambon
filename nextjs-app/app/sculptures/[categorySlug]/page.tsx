@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { sanity } from '@/lib/sanity';
 import { groq } from 'next-sanity';
 import SculptureCard from '@/app/components/SculptureCard';
@@ -38,47 +38,17 @@ const query = groq`
 const COOKIE_NAME = process.env.NEXT_PUBLIC_COOKIE_NAME || 'sculpture_auth';
 const PASSWORD = process.env.NEXT_PUBLIC_SIMPLE_PASSWORD || 'mySecret123';
 
-const updateCanvasHeight = () => {
-
-  const canvas = document.getElementById('canvas');
-  if (!canvas) return;
-
-  const cards = canvas.querySelectorAll('.absolute'); // Target sculpture cards
-  let maxBottom = 0;
-
-  const canvasRect = canvas.getBoundingClientRect();
-
-  cards.forEach(card => {
-    const rect = card.getBoundingClientRect();
-    const bottom = rect.bottom - canvasRect.top;
-    maxBottom = Math.max(maxBottom, bottom);
-  });
-
-  const header = document.getElementById('header');
-  const headerHeight = header?.offsetHeight || 0;
-
-  const PADDING_BOTTOM = 100;
-  const contentHeight = maxBottom + PADDING_BOTTOM;
-  const viewportHeight = window.innerHeight - headerHeight;
-  const finalHeight = Math.max(contentHeight, viewportHeight);
-
-  canvas.style.minHeight = `${finalHeight}px`;
-};
-
-
 const waitForImages = () => {
   const images = document.querySelectorAll<HTMLImageElement>('#canvas img');
-  const promises = Array.from(images).map(img => {
-    return new Promise<void>((resolve) => {
-      if (img.complete) {
-        resolve();
-      } else {
+  const promises = Array.from(images).map(img =>
+    new Promise<void>((resolve) => {
+      if (img.complete) resolve();
+      else {
         img.onload = () => resolve();
-        img.onerror = () => resolve(); // Prevent blocking on broken images
+        img.onerror = () => resolve();
       }
-    });
-  });
-
+    })
+  );
   return Promise.all(promises);
 };
 
@@ -90,6 +60,32 @@ const CategoryPage = () => {
   const editable = false;
   const [loggedIn, setLoggedIn] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  const updateCanvasHeight = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const cards = canvas.querySelectorAll('.absolute');
+    let maxBottom = 0;
+    const canvasRect = canvas.getBoundingClientRect();
+
+    cards.forEach(card => {
+      const rect = card.getBoundingClientRect();
+      const bottom = rect.bottom - canvasRect.top;
+      maxBottom = Math.max(maxBottom, bottom);
+    });
+
+    const header = document.getElementById('header');
+    const headerHeight = header?.offsetHeight || 0;
+
+    const PADDING_BOTTOM = 100;
+    const contentHeight = maxBottom + PADDING_BOTTOM;
+    const viewportHeight = window.innerHeight - headerHeight;
+    const finalHeight = Math.max(contentHeight, viewportHeight);
+
+    canvas.style.minHeight = `${finalHeight}px`;
+  };
 
   useEffect(() => {
     const checkWidth = () => setIsMobile(window.innerWidth < 1024);
@@ -99,18 +95,14 @@ const CategoryPage = () => {
   }, []);
 
   useEffect(() => {
-    const checkAuth = () => {
-      const cookieValue = document.cookie
-        .split('; ')
-        .find((row) => row.startsWith(`${COOKIE_NAME}=`))
-        ?.split('=')[1];
+    const cookieValue = document.cookie
+      .split('; ')
+      .find(row => row.startsWith(`${COOKIE_NAME}=`))
+      ?.split('=')[1];
 
-      if (cookieValue === PASSWORD) {
-        setLoggedIn(true);
-      }
-    };
-
-    checkAuth();
+    if (cookieValue === PASSWORD) {
+      setLoggedIn(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -122,14 +114,6 @@ const CategoryPage = () => {
         const { sculptures, category } = await sanity.fetch(query, { slug: categorySlug });
         setSculptures(sculptures);
         setCategory(category);
-
-        // Wait for DOM update and image load
-        setTimeout(() => {
-          waitForImages().then(() => {
-            updateCanvasHeight();
-          });
-        }, 0);
-
       } catch (error) {
         console.error('Failed to fetch category data:', error);
       } finally {
@@ -140,39 +124,41 @@ const CategoryPage = () => {
     fetchData();
   }, [categorySlug]);
 
-  // ✅ Window resize listener (ALWAYS registers)
-  useEffect(() => {
-    const handleWindowResize = () => {
-      console.log('Window resize');
-      updateCanvasHeight();
-    };
+  // Run after DOM + images have loaded
+  useLayoutEffect(() => {
+    if (!canvasRef.current) return;
 
-    window.addEventListener('resize', handleWindowResize);
-    return () => window.removeEventListener('resize', handleWindowResize);
-  }, []);
-
-  // ✅ ResizeObserver just for canvas size/content changes
-  useEffect(() => {
-    const canvas = document.getElementById('canvas');
-    if (!canvas) return;
-
-    const observer = new ResizeObserver(() => {
-      updateCanvasHeight();
+    waitForImages().then(() => {
+      requestAnimationFrame(() => {
+        updateCanvasHeight();
+      });
     });
 
-    observer.observe(canvas);
-    return () => observer.disconnect();
+    // Optional fallback retry in case images load too late
+    const fallback = setTimeout(() => {
+      updateCanvasHeight();
+    }, 1500);
+
+    return () => clearTimeout(fallback);
+  }, [sculptures]);
+
+  // Listen to window resize
+  useEffect(() => {
+    const handleResize = () => updateCanvasHeight();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   if (loading) return <div>Loading...</div>;
   if (!category) return <div>Category not found</div>;
 
-  let sculpturesClasses = "container relative h-[2000px]";
-  let canvasClasses = "relative w-full h-[1000px] border bg-gray-50 overflow-hidden";
-  if (isMobile) {
-    sculpturesClasses = "columns-1 sm:columns-2 gap-4 p-4";
-    canvasClasses = "relative w-full h-[1000px] border bg-gray-50";
-  }
+  const sculpturesClasses = isMobile
+    ? "columns-1 sm:columns-2 gap-4 p-4"
+    : "container relative h-[2000px]";
+
+  const canvasClasses = isMobile
+    ? "relative w-full h-[1000px] border bg-gray-50"
+    : "relative w-full h-[1000px] border bg-gray-50 overflow-hidden";
 
   return (
     <div className="">
@@ -190,7 +176,7 @@ const CategoryPage = () => {
         </Link>
       )}
 
-      <div id="canvas" className={canvasClasses}>
+      <div id="canvas" ref={canvasRef} className={canvasClasses}>
         {sculptures.length === 0 ? (
           <p>No sculptures found.</p>
         ) : (

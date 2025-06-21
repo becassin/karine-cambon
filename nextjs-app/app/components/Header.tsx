@@ -107,7 +107,7 @@ export default function Header() {
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
-              <span className="cursor-pointer select-none px-4 py-2">
+              <span className="cursor-pointer select-none">
                 Sculptures
               </span>
               {desktopDropdownOpen && (
