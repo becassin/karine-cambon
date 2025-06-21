@@ -65,7 +65,7 @@ export default function GuestBookPage() {
 
   return (
     <div className="max-w-xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold mb-6">Livre d'Or</h1>
+      <h1 className="text-3xl font-bold mb-6">Livre d&apos;Or</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4 mb-8">
         <input
