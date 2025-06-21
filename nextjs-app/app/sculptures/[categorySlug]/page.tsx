@@ -56,6 +56,22 @@ const updateCanvasHeight = () => {
   canvas.style.minHeight = `${maxBottom + PADDING_BOTTOM}px`;
 };
 
+const waitForImages = () => {
+  const images = document.querySelectorAll<HTMLImageElement>('#canvas img');
+  const promises = Array.from(images).map(img => {
+    return new Promise<void>((resolve) => {
+      if (img.complete) {
+        resolve();
+      } else {
+        img.onload = () => resolve();
+        img.onerror = () => resolve(); // Prevent blocking on broken images
+      }
+    });
+  });
+
+  return Promise.all(promises);
+};
+
 const CategoryPage = () => {
   const { categorySlug } = useParams();
   const [sculptures, setSculptures] = useState<any[]>([]);
@@ -63,7 +79,6 @@ const CategoryPage = () => {
   const [loading, setLoading] = useState(true);
   const editable = false;
   const [loggedIn, setLoggedIn] = useState(false);
-
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -73,25 +88,20 @@ const CategoryPage = () => {
     return () => window.removeEventListener('resize', checkWidth);
   }, []);
 
-    // Check cookie auth client-side
-    useEffect(() => {
-      const checkAuth = () => {
-        console.log('document.cookie:', document.cookie);
+  useEffect(() => {
+    const checkAuth = () => {
+      const cookieValue = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith(`${COOKIE_NAME}=`))
+        ?.split('=')[1];
 
-        const cookieValue = document.cookie
-          .split('; ')
-          .find((row) => row.startsWith(`${COOKIE_NAME}=`))
-          ?.split('=')[1];
+      if (cookieValue === PASSWORD) {
+        setLoggedIn(true);
+      }
+    };
 
-        console.log(cookieValue);
-        console.log(PASSWORD);
-        if (cookieValue === PASSWORD) {
-          setLoggedIn(true);
-        }
-      };
-
-      checkAuth();
-    }, []);
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,10 +113,12 @@ const CategoryPage = () => {
         setSculptures(sculptures);
         setCategory(category);
 
-        // Wait for DOM render, then update canvas height
+        // Wait for DOM update and image load
         setTimeout(() => {
-          updateCanvasHeight();
-        }, 50);
+          waitForImages().then(() => {
+            updateCanvasHeight();
+          });
+        }, 0);
 
       } catch (error) {
         console.error('Failed to fetch category data:', error);
@@ -117,6 +129,19 @@ const CategoryPage = () => {
 
     fetchData();
   }, [categorySlug]);
+
+  // Watch for layout changes (e.g., image sizes, window resizes)
+  useEffect(() => {
+    const canvas = document.getElementById('canvas');
+    if (!canvas) return;
+
+    const observer = new ResizeObserver(() => {
+      updateCanvasHeight();
+    });
+
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, []);
 
   if (loading) return <div>Loading...</div>;
   if (!category) return <div>Category not found</div>;
@@ -144,9 +169,7 @@ const CategoryPage = () => {
         </Link>
       )}
 
-
       <div id="canvas" className={canvasClasses}>
-
         {sculptures.length === 0 ? (
           <p>No sculptures found.</p>
         ) : (
