@@ -147,11 +147,6 @@ const CategoryPage = () => {
 
       <div id="canvas" className={canvasClasses}>
 
-        <div className='container mx-auto flex items-center justify-between'>
-          <h1 className="text-m font-bold pt-6">{category.title}</h1>
-        </div>
-
-
         {sculptures.length === 0 ? (
           <p>No sculptures found.</p>
         ) : (

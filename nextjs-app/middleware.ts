@@ -6,7 +6,7 @@ const COOKIE_NAME = process.env.NEXT_PUBLIC_COOKIE_NAME || 'sculpture_auth';
 export function middleware(req: NextRequest) {
   const cookie = req.cookies.get(COOKIE_NAME);
 
-  if (cookie?.value !== PASSWORD) {
+  if (false && (cookie?.value !== PASSWORD)) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('redirect', req.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
@@ -22,5 +22,5 @@ export const config = {
     '/contact',
     '/guestbook',
     '/'
-  ], // ✅ Only runs on /sculptures/** routes
+  ],
 };

@@ -40,12 +40,12 @@ export default function ContactForm() {
 
   return (
     <div className="max-w-md mx-auto py-12">
-      <h1 className="text-3xl font-bold mb-6">Contact Us</h1>
+      <h1 className="text-3xl font-bold mb-6">Envoyer un message</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           name="name"
-          placeholder="Your name"
+          placeholder="Nom"
           value={form.name}
           onChange={handleChange}
           required
@@ -54,7 +54,7 @@ export default function ContactForm() {
         <input
           name="email"
           type="email"
-          placeholder="Your email"
+          placeholder="Email"
           value={form.email}
           onChange={handleChange}
           required
@@ -62,7 +62,7 @@ export default function ContactForm() {
         />
         <textarea
           name="message"
-          placeholder="Your message"
+          placeholder="Message"
           value={form.message}
           onChange={handleChange}
           required
@@ -73,7 +73,7 @@ export default function ContactForm() {
           className="bg-blue-600 text-white px-4 py-2 rounded"
           disabled={status === 'sending'}
         >
-          {status === 'sending' ? 'Sending...' : 'Send Message'}
+          {status === 'sending' ? 'Envoi...' : 'Envoyer'}
         </button>
         {status === 'sent' && <p className="text-green-600">Message sent!</p>}
         {status === 'error' && <p className="text-red-600">{error}</p>}

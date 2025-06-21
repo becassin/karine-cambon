@@ -65,12 +65,12 @@ export default function GuestBookPage() {
 
   return (
     <div className="max-w-xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold mb-6">Guest Book</h1>
+      <h1 className="text-3xl font-bold mb-6">Livre d'Or</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4 mb-8">
         <input
           name="name"
-          placeholder="Your name"
+          placeholder="Nom"
           value={form.name}
           onChange={handleChange}
           className="w-full border border-gray-300 p-2"
@@ -78,7 +78,7 @@ export default function GuestBookPage() {
         />
         <textarea
           name="message"
-          placeholder="Your message"
+          placeholder="Message"
           value={form.message}
           onChange={handleChange}
           className="w-full border border-gray-300 p-2"
@@ -96,13 +96,13 @@ export default function GuestBookPage() {
           className="bg-blue-600 text-white px-4 py-2 rounded"
           disabled={status === 'submitting'}
         >
-          {status === 'submitting' ? 'Submitting...' : 'Submit'}
+          {status === 'submitting' ? 'Envoi...' : 'Envoyer'}
         </button>
         {status === 'error' && <p className="text-red-600">{error}</p>}
         {status === 'success' && <p className="text-green-600">Entry submitted!</p>}
       </form>
 
-      <h2 className="text-2xl font-semibold mb-4">Entries</h2>
+      <h2 className="text-2xl font-semibold mb-4">Messages</h2>
       <ul className="space-y-4">
         {entries.map(entry => (
           <li key={entry._id} className="border border-gray-200 p-4 rounded">
