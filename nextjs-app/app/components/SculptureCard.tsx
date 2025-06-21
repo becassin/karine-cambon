@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { PortableText } from '@portabletext/react';
 import { PortableTextBlock } from '@portabletext/types';
 import { urlFor } from "@/lib/imageUrl";
+import Image from 'next/image';
 
 type Props = {
   title: string;
@@ -218,14 +219,18 @@ export default function SculptureCard({
           height: 'auto',
         }}
       >
-        <img
-          src={image ? urlFor(image).url() : ''}
-          draggable={false}
-          tabIndex={-1}
-          className="pointer-events-auto w-full h-auto select-none cursor-pointer"
-          style={{ outline: 'none' }}
-          onClick={() => !editable && setIsModalOpen(true)}
-        />
+        {image && (
+          <Image
+            src={urlFor(image).width(Math.round((width ?? 500))).height(Math.round((height ?? 500))).fit('clip').auto('format').url()}
+            alt={title}
+            width={width}
+            height={height ?? 500}
+            className="pointer-events-auto w-full h-auto select-none cursor-pointer"
+            style={{ outline: 'none' }}
+            draggable={false}
+            onClick={() => !editable && setIsModalOpen(true)}
+          />
+        )}
 
         {editable && (
           <div
@@ -240,9 +245,13 @@ export default function SculptureCard({
           <div className="w-2/3 flex flex-col items-center justify-center p-6 relative">
             {allImages.length > 0 && (
               <>
-                <img
-                  src={urlFor(allImages[currentSlide]).url()}
-                  className="max-h-[80vh] max-w-full"
+                <Image
+                  src={urlFor(allImages[currentSlide]).width(1200).fit('max').auto('format').url()}
+                  alt={title}
+                  width={1200}
+                  height={800} // or whatever estimate, just to avoid layout shift
+                  className="max-h-[80vh] w-auto h-auto"
+                  priority
                 />
                 {allImages.length > 1 && (
                   <>
