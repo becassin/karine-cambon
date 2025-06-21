@@ -39,22 +39,32 @@ const COOKIE_NAME = process.env.NEXT_PUBLIC_COOKIE_NAME || 'sculpture_auth';
 const PASSWORD = process.env.NEXT_PUBLIC_SIMPLE_PASSWORD || 'mySecret123';
 
 const updateCanvasHeight = () => {
+
   const canvas = document.getElementById('canvas');
   if (!canvas) return;
 
   const cards = canvas.querySelectorAll('.absolute'); // Target sculpture cards
   let maxBottom = 0;
 
+  const canvasRect = canvas.getBoundingClientRect();
+
   cards.forEach(card => {
     const rect = card.getBoundingClientRect();
-    const canvasRect = canvas.getBoundingClientRect();
     const bottom = rect.bottom - canvasRect.top;
     maxBottom = Math.max(maxBottom, bottom);
   });
 
+  const header = document.getElementById('header');
+  const headerHeight = header?.offsetHeight || 0;
+
   const PADDING_BOTTOM = 100;
-  canvas.style.minHeight = `${maxBottom + PADDING_BOTTOM}px`;
+  const contentHeight = maxBottom + PADDING_BOTTOM;
+  const viewportHeight = window.innerHeight - headerHeight;
+  const finalHeight = Math.max(contentHeight, viewportHeight);
+
+  canvas.style.minHeight = `${finalHeight}px`;
 };
+
 
 const waitForImages = () => {
   const images = document.querySelectorAll<HTMLImageElement>('#canvas img');
@@ -130,7 +140,18 @@ const CategoryPage = () => {
     fetchData();
   }, [categorySlug]);
 
-  // Watch for layout changes (e.g., image sizes, window resizes)
+  // ✅ Window resize listener (ALWAYS registers)
+  useEffect(() => {
+    const handleWindowResize = () => {
+      console.log('Window resize');
+      updateCanvasHeight();
+    };
+
+    window.addEventListener('resize', handleWindowResize);
+    return () => window.removeEventListener('resize', handleWindowResize);
+  }, []);
+
+  // ✅ ResizeObserver just for canvas size/content changes
   useEffect(() => {
     const canvas = document.getElementById('canvas');
     if (!canvas) return;

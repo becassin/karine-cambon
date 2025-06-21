@@ -50,7 +50,7 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed z-50 h-24 inset-0 bg-white/80 flex items-center backdrop-blur-lg px-4 sm:px-6">
+    <header id="header" className="fixed z-50 h-24 inset-0 bg-white/80 flex items-center backdrop-blur-lg px-4 sm:px-6">
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link className="flex items-center gap-2" href="/">

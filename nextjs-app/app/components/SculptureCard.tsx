@@ -230,7 +230,7 @@ export default function SculptureCard({
             style={{ outline: 'none' }}
             draggable={false}
             onClick={() => !editable && setIsModalOpen(true)}
-            onLoadingComplete={() => {
+            onLoad={() => {
               updateCanvasHeight();
             }}
           />
