@@ -20,6 +20,7 @@ type Props = {
   editable?: boolean;
   isMobile?: boolean;
   extraImages?: any[];
+  onImageLoad?: () => void;
 };
 
 function clamp(val: number, min: number, max: number): number {
@@ -229,6 +230,9 @@ export default function SculptureCard({
             style={{ outline: 'none' }}
             draggable={false}
             onClick={() => !editable && setIsModalOpen(true)}
+            onLoadingComplete={() => {
+              updateCanvasHeight();
+            }}
           />
         )}
 
