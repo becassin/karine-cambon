@@ -27,7 +27,6 @@ function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(val, max));
 }
 
-// 🔧 Snap helper
 function snapToGrid(value: number, gridSize = 10): number {
   return Math.round(value / gridSize) * gridSize;
 }
@@ -71,6 +70,7 @@ export default function SculptureCard({
   const isResizing = useRef(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [naturalSize, setNaturalSize] = useState<{ width: number; height: number } | null>(null);
 
   useEffect(() => {
     if (isModalOpen) setCurrentSlide(0);
@@ -153,7 +153,6 @@ export default function SculptureCard({
       const rect = el.getBoundingClientRect();
       const canvasRect = canvas.getBoundingClientRect();
 
-      // 🔧 Snap all saved dimensions
       const top = snapToGrid(rect.top - canvasRect.top);
       const left = snapToGrid(rect.left - canvasRect.left);
       const width = snapToGrid(rect.width);
@@ -186,10 +185,7 @@ export default function SculptureCard({
     };
 
     el?.addEventListener('mousedown', onMouseDown);
-
-    return () => {
-      el?.removeEventListener('mousedown', onMouseDown);
-    };
+    return () => el?.removeEventListener('mousedown', onMouseDown);
   }, [id, title, editable]);
 
   useEffect(() => {
@@ -200,12 +196,20 @@ export default function SculptureCard({
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  let positioningClasses = "absolute sculpture-card bg-red-100";
-  if (!width_percentage) width_percentage = "5%";
-  const widthMobile = "100%";
-  if (isMobile) positioningClasses = "sculpture-card mb-4 bg-red-100";
-
+  const positioningClasses = isMobile ? "sculpture-card mb-4 bg-red-100" : "absolute sculpture-card bg-red-100";
   const allImages = [image, ...(extraImages || [])];
+
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    if (!width || !height) {
+      setNaturalSize({ width: img.naturalWidth, height: img.naturalHeight });
+    }
+    updateCanvasHeight();
+  };
+
+  const finalWidth = width ?? naturalSize?.width;
+  const finalHeight = height ?? naturalSize?.height;
+  const useFill = !finalWidth || !finalHeight;
 
   return (
     <>
@@ -214,27 +218,41 @@ export default function SculptureCard({
         id={id}
         className={positioningClasses}
         style={{
-          top: snapToGrid(top ?? 0), // 🔧 Snap fallback
+          top: snapToGrid(top ?? 0),
           left: left_percentage ?? 0,
-          width: isMobile ? widthMobile : width_percentage,
+          width: isMobile ? '100%' : width_percentage ?? '5%',
           height: 'auto',
+          position: isMobile ? 'relative' : 'absolute',
         }}
       >
         {image && (
-          <Image
-            src={urlFor(image).width(Math.round((width ?? 500))).height(Math.round((height ?? 500))).fit('clip').auto('format').url()}
-            alt={title}
-            width={width}
-            height={height ?? 500}
-            className="pointer-events-auto w-full h-auto select-none cursor-pointer"
-            style={{ outline: 'none' }}
-            draggable={false}
-            priority={true}
-            onClick={() => !editable && setIsModalOpen(true)}
-            onLoad={() => {
-              updateCanvasHeight();
-            }}
-          />
+          useFill ? (
+            <div className="relative w-full h-auto aspect-[16/9]">
+              <Image
+                src={urlFor(image).fit('clip').auto('format').url()}
+                alt={title}
+                fill
+                className="object-contain pointer-events-auto select-none cursor-pointer"
+                onClick={() => !editable && setIsModalOpen(true)}
+                onLoad={handleImageLoad}
+                draggable={false}
+                priority
+              />
+            </div>
+          ) : (
+            <Image
+              src={urlFor(image).width(finalWidth).height(finalHeight).fit('clip').auto('format').url()}
+              alt={title}
+              width={finalWidth}
+              height={finalHeight}
+              className="pointer-events-auto w-full h-auto select-none cursor-pointer"
+              style={{ outline: 'none' }}
+              draggable={false}
+              priority
+              onClick={() => !editable && setIsModalOpen(true)}
+              onLoad={handleImageLoad}
+            />
+          )
         )}
 
         {editable && (
@@ -254,7 +272,7 @@ export default function SculptureCard({
                   src={urlFor(allImages[currentSlide]).width(1200).fit('max').auto('format').url()}
                   alt={title}
                   width={1200}
-                  height={800} // or whatever estimate, just to avoid layout shift
+                  height={800}
                   className="max-h-[80vh] w-auto h-auto"
                   priority
                 />
