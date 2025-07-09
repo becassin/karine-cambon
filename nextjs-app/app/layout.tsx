@@ -66,6 +66,8 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${inter.variable} bg-white text-black`}>
+      <script data-goatcounter="https://karinecambon.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
       <body>
         <section className="min-h-screen pt-24">
           {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
