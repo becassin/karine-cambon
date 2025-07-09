@@ -207,6 +207,9 @@ export default function SculptureCard({
 
   const allImages = [image, ...(extraImages || [])];
 
+  const fallbackWidth = width ?? 500;
+  const fallbackHeight = height ?? 500;
+
   return (
     <>
       <div
@@ -222,10 +225,10 @@ export default function SculptureCard({
       >
         {image && (
           <Image
-            src={urlFor(image).width(Math.round((width ?? 500))).height(Math.round((height ?? 500))).fit('clip').auto('format').url()}
+            src={urlFor(image).width(Math.round((fallbackWidth))).height(Math.round((fallbackHeight))).fit('clip').auto('format').url()}
             alt={title}
-            width={width}
-            height={height ?? 500}
+            width={fallbackWidth}
+            height={fallbackHeight}
             className="pointer-events-auto w-full h-auto select-none cursor-pointer"
             style={{ outline: 'none' }}
             draggable={false}
