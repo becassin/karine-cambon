@@ -20,6 +20,7 @@ type Props = {
   editable?: boolean;
   isMobile?: boolean;
   extraImages?: any[];
+  imageDimensions?: any[];
   onImageLoad?: () => void;
 };
 
@@ -64,6 +65,7 @@ export default function SculptureCard({
   editable = false,
   isMobile = false,
   extraImages = [],
+  imageDimensions = [],
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const offset = useRef({ x: 0, y: 0 });
@@ -207,8 +209,13 @@ export default function SculptureCard({
 
   const allImages = [image, ...(extraImages || [])];
 
+  const naturalWidth = imageDimensions?.width ?? 500;
+  const naturalHeight = imageDimensions?.height ?? 500;
+  const aspectRatio = naturalHeight / naturalWidth;
+
   const fallbackWidth = width ?? 500;
-  const fallbackHeight = height ?? 500;
+  const fallbackHeight = height ?? Math.round((fallbackWidth * aspectRatio)) ;
+
 
   return (
     <>

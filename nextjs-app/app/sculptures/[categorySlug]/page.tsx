@@ -25,6 +25,7 @@ const query = groq`
     width_percentage,
     height,
     "coverImage": coverImage,
+    'imageDimensions': coverImage.asset->metadata.dimensions,
     extraImages
   },
   "category": *[_type == "category" && slug.current == $slug][0]{
@@ -194,6 +195,7 @@ const CategoryPage = () => {
                 width_percentage={sculpture.width_percentage}
                 height={sculpture.height}
                 image={sculpture.coverImage}
+                imageDimensions={sculpture.imageDimensions}
                 editable={editable}
                 isMobile={isMobile}
                 extraImages={sculpture.extraImages}
