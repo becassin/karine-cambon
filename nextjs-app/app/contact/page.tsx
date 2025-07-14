@@ -39,7 +39,7 @@ export default function ContactForm() {
   };
 
   return (
-    <div className="max-w-md mx-auto py-12">
+    <div className="max-w-md mx-auto py-10 px-4">
       <h1 className="text-3xl font-bold mb-6">Envoyer un message</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">

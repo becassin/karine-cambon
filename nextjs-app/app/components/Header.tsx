@@ -134,9 +134,13 @@ export default function Header() {
         <div className="absolute top-24 left-0 w-full bg-white border-t z-40 shadow-md lg:hidden">
           <ul className="flex flex-col p-4 gap-2 text-sm font-medium">
             <li>
-              <Link href="/about" onClick={closeMobileMenu}>
-                About
-              </Link>
+              <li>
+                <Link href="/guestbook" onClick={closeMobileMenu}>Livre d&apos;Or</Link>
+              </li>
+
+              <li>
+                <Link href="/contact" onClick={closeMobileMenu}>Contact</Link>
+              </li>
             </li>
 
             <li>

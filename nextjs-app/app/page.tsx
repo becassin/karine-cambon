@@ -30,7 +30,7 @@ export default async function Page() {
   }`)
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-8 py-16">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 md:py-16">
       <div className="flex flex-col-reverse md:flex-row items-center md:items-stretch gap-12 md:gap-40">
 
         {/* Text section */}
