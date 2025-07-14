@@ -265,7 +265,7 @@ export default function SculptureCard({
                   alt={title}
                   width={1200}
                   height={800} // or whatever estimate, just to avoid layout shift
-                  className="max-h-[80vh] w-auto h-auto"
+                  className="max-h-[90vh] w-auto h-auto"
                   priority
                 />
                 {allImages.length > 1 && (
