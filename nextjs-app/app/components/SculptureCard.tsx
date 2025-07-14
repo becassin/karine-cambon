@@ -65,7 +65,7 @@ export default function SculptureCard({
   editable = false,
   isMobile = false,
   extraImages = [],
-  imageDimensions = [],
+  imageDimensions = null,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const offset = useRef({ x: 0, y: 0 });
