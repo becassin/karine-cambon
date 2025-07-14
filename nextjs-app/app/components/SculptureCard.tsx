@@ -298,8 +298,8 @@ export default function SculptureCard({
           </div>
 
           {/* Text Section */}
-          <div className="w-full md:w-1/3 h-[10%] md:h-auto text-white p-4 md:p-10 relative flex flex-col md:justify-center md:items-start justify-center items-center text-center md:text-left text-2xl md:text-base">
-            <h2 className="font-bold mb-2 md:mb-4">{title}</h2>
+          <div className="w-full md:w-1/3 h-[10%] md:h-auto text-white p-4 md:p-10 relative flex flex-col md:justify-center md:items-start justify-center items-center text-center md:text-left md:text-base">
+            <h2 className="font-bold mb-2 md:mb-0 text-2xl md:text-3xl">{title}</h2>
             {description && (
               <div className="prose prose-invert prose-sm text-gray-100 hidden md:block">
                 <PortableText value={description} />
