@@ -20,7 +20,7 @@ type Props = {
   editable?: boolean;
   isMobile?: boolean;
   extraImages?: any[];
-  imageDimensions?: any[];
+  imageDimensions?: { width: number; height: number } | null;
   onImageLoad?: () => void;
 };
 
