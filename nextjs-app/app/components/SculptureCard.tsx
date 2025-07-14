@@ -256,16 +256,27 @@ export default function SculptureCard({
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex overflow-auto">
-          <div className="w-2/3 flex flex-col items-center justify-center p-6 relative">
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex flex-col md:flex-row h-screen overflow-hidden">
+
+          {/* Close Button */}
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="absolute top-4 right-4 text-white text-3xl hover:text-gray-400 focus:outline-none z-50"
+            aria-label="Close modal"
+          >
+            &times;
+          </button>
+
+          {/* Image Section */}
+          <div className="w-full md:w-2/3 h-[90%] md:h-auto flex items-center justify-center p-6 relative">
             {allImages.length > 0 && (
               <>
                 <Image
                   src={urlFor(allImages[currentSlide]).width(1200).fit('max').auto('format').url()}
                   alt={title}
                   width={1200}
-                  height={800} // or whatever estimate, just to avoid layout shift
-                  className="max-h-[90vh] w-auto h-auto"
+                  height={800}
+                  className="max-h-full w-auto h-auto"
                   priority
                 />
                 {allImages.length > 1 && (
@@ -286,22 +297,18 @@ export default function SculptureCard({
             )}
           </div>
 
-          <div className="w-1/3 text-white p-10 relative flex flex-col justify-center">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-white text-3xl hover:text-gray-400 focus:outline-none"
-              aria-label="Close modal"
-            >&times;</button>
-
-            <h2 className="text-3xl font-bold mb-4">{title}</h2>
+          {/* Text Section */}
+          <div className="w-full md:w-1/3 h-[10%] md:h-auto text-white p-4 md:p-10 relative flex flex-col md:justify-center md:items-start justify-center items-center text-center md:text-left text-2xl md:text-base">
+            <h2 className="font-bold mb-2 md:mb-4">{title}</h2>
             {description && (
-              <div className="prose prose-invert prose-sm text-gray-100">
+              <div className="prose prose-invert prose-sm text-gray-100 hidden md:block">
                 <PortableText value={description} />
               </div>
             )}
           </div>
         </div>
       )}
+
     </>
   );
 }
