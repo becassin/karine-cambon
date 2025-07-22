@@ -90,7 +90,7 @@ export default async function RootLayout({
   const { isEnabled: isDraftMode } = await draftMode();
 
   return (
-    <html lang="en" className={`${inter.variable} bg-white text-black`}>
+    <html lang="fr" className={`${inter.variable} bg-white text-black`}>
       <body>
         <script data-goatcounter="https://karinecambon.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
